@@ -1,27 +1,33 @@
-import { propertiesStore } from '@/lib/admin-store';
+import { supabase } from '@/lib/supabase';
 
 export async function GET(req, { params }) {
   const id = parseInt(params.id);
-  const property = propertiesStore.find(p => p.id === id);
-  if (!property) return Response.json({ error: 'العقار غير موجود' }, { status: 404 });
-  return Response.json({ property });
+  const { data, error } = await supabase.from('properties').select('*').eq('id', id).single();
+  
+  if (error || !data) return Response.json({ error: 'العقار غير موجود' }, { status: 404 });
+  return Response.json({ property: data });
 }
 
 export async function PUT(req, { params }) {
   const id = parseInt(params.id);
-  const index = propertiesStore.findIndex(p => p.id === id);
-  if (index === -1) return Response.json({ error: 'العقار غير موجود' }, { status: 404 });
-
   const body = await req.json();
-  propertiesStore[index] = { ...propertiesStore[index], ...body, updated_at: new Date().toISOString() };
-  return Response.json({ property: propertiesStore[index] });
+  
+  const { data, error } = await supabase
+    .from('properties')
+    .update({ ...body, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error || !data) return Response.json({ error: 'العقار غير موجود' }, { status: 404 });
+  return Response.json({ property: data });
 }
 
 export async function DELETE(req, { params }) {
   const id = parseInt(params.id);
-  const index = propertiesStore.findIndex(p => p.id === id);
-  if (index === -1) return Response.json({ error: 'العقار غير موجود' }, { status: 404 });
+  
+  const { error } = await supabase.from('properties').delete().eq('id', id);
+  if (error) return Response.json({ error: 'العقار غير موجود' }, { status: 404 });
 
-  propertiesStore.splice(index, 1);
   return Response.json({ success: true });
 }

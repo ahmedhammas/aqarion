@@ -1,13 +1,16 @@
-import { messagesStore } from '@/lib/admin-store';
+import { supabase } from '@/lib/supabase';
 
 export async function GET() {
-  const sorted = [...messagesStore].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  const { data, error } = await supabase.from('messages').select('*').order('created_at', { ascending: false });
+  
+  if (error) return Response.json({ error: error.message }, { status: 500 });
+
   const stats = {
-    total: messagesStore.length,
-    new: messagesStore.filter(m => m.status === 'new').length,
-    read: messagesStore.filter(m => m.status === 'read').length,
-    replied: messagesStore.filter(m => m.status === 'replied').length,
-    archived: messagesStore.filter(m => m.status === 'archived').length,
+    total: data.length,
+    new: data.filter(m => m.status === 'new').length,
+    read: data.filter(m => m.status === 'read').length,
+    replied: data.filter(m => m.status === 'replied').length,
+    archived: data.filter(m => m.status === 'archived').length,
   };
-  return Response.json({ messages: sorted, stats });
+  return Response.json({ messages: data, stats });
 }

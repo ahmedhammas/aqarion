@@ -1,4 +1,4 @@
-import { propertiesStore } from '@/lib/admin-store';
+import { supabase } from '@/lib/supabase';
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
@@ -11,43 +11,47 @@ export async function GET(req) {
   const page = parseInt(searchParams.get('page') || '1');
   const perPage = parseInt(searchParams.get('perPage') || '10');
 
-  let result = [...propertiesStore];
+  let query = supabase.from('properties').select('*', { count: 'exact' });
 
-  if (city) result = result.filter(p => p.city === city);
-  if (type) result = result.filter(p => p.typeLabel === type);
-  if (status) result = result.filter(p => p.status === status);
-  if (featured === 'true') result = result.filter(p => p.featured);
-  if (search) result = result.filter(p => p.name.includes(search) || p.location.includes(search));
+  if (city) query = query.eq('city', city);
+  if (type) query = query.eq('typeLabel', type);
+  if (status) query = query.eq('status', status);
+  if (featured === 'true') query = query.eq('featured', true);
+  if (search) query = query.or(`name.ilike.%${search}%,location.ilike.%${search}%`);
 
   switch (sort) {
-    case 'cheapest': result.sort((a, b) => a.priceNum - b.priceNum); break;
-    case 'expensive': result.sort((a, b) => b.priceNum - a.priceNum); break;
-    case 'views': result.sort((a, b) => (b.views_count || 0) - (a.views_count || 0)); break;
-    default: result.sort((a, b) => b.id - a.id);
+    case 'cheapest': query = query.order('priceNum', { ascending: true }); break;
+    case 'expensive': query = query.order('priceNum', { ascending: false }); break;
+    case 'views': query = query.order('views_count', { ascending: false }); break;
+    default: query = query.order('id', { ascending: false });
   }
 
-  const total = result.length;
-  const totalPages = Math.ceil(total / perPage);
-  const paginated = result.slice((page - 1) * perPage, page * perPage);
+  const { data, count, error } = await query.range((page - 1) * perPage, page * perPage - 1);
 
-  return Response.json({ properties: paginated, total, totalPages, page });
+  if (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+
+  const totalPages = Math.ceil((count || 0) / perPage);
+
+  return Response.json({ properties: data, total: count, totalPages, page });
 }
 
 export async function POST(req) {
   try {
     const body = await req.json();
-    const newId = Math.max(...propertiesStore.map(p => p.id), 0) + 1;
-    const newProperty = {
-      id: newId,
-      slug: body.name?.replace(/\s+/g, '-') || `property-${newId}`,
+    const slug = body.name?.replace(/\s+/g, '-') || `property-${Date.now()}`;
+    
+    const { data, error } = await supabase.from('properties').insert([{
+      ...body,
+      slug,
       views_count: 0,
       is_published: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      ...body,
-    };
-    propertiesStore.unshift(newProperty);
-    return Response.json({ property: newProperty }, { status: 201 });
+    }]).select().single();
+
+    if (error) throw error;
+
+    return Response.json({ property: data }, { status: 201 });
   } catch (error) {
     return Response.json({ error: 'فشل إضافة العقار' }, { status: 500 });
   }

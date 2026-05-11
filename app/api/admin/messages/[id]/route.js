@@ -1,22 +1,30 @@
-import { messagesStore } from '@/lib/admin-store';
+import { supabase } from '@/lib/supabase';
 
 export async function PUT(req, { params }) {
   const id = parseInt(params.id);
-  const index = messagesStore.findIndex(m => m.id === id);
-  if (index === -1) return Response.json({ error: 'الرسالة غير موجودة' }, { status: 404 });
-
   const body = await req.json();
-  messagesStore[index] = { ...messagesStore[index], ...body };
+  
+  const updateData = { ...body };
   if (body.status === 'replied') {
-    messagesStore[index].replied_at = new Date().toISOString();
+    updateData.replied_at = new Date().toISOString();
   }
-  return Response.json({ message: messagesStore[index] });
+
+  const { data, error } = await supabase
+    .from('messages')
+    .update(updateData)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error || !data) return Response.json({ error: 'الرسالة غير موجودة' }, { status: 404 });
+  return Response.json({ message: data });
 }
 
 export async function DELETE(req, { params }) {
   const id = parseInt(params.id);
-  const index = messagesStore.findIndex(m => m.id === id);
-  if (index === -1) return Response.json({ error: 'الرسالة غير موجودة' }, { status: 404 });
-  messagesStore.splice(index, 1);
+  
+  const { error } = await supabase.from('messages').delete().eq('id', id);
+  if (error) return Response.json({ error: 'الرسالة غير موجودة' }, { status: 404 });
+
   return Response.json({ success: true });
 }

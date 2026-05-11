@@ -1,3 +1,5 @@
+import { supabase } from '@/lib/supabase';
+
 export async function POST(req) {
   try {
     const body = await req.json();
@@ -20,23 +22,17 @@ export async function POST(req) {
       );
     }
 
-    // Log the contact form submission
-    console.log('📬 New Contact Form Submission:');
-    console.log('---');
-    console.log(`Name: ${firstName} ${lastName}`);
-    console.log(`Phone: ${phone}`);
-    console.log(`Email: ${email}`);
-    console.log(`Message: ${message}`);
-    console.log('---');
+    const { error: dbError } = await supabase.from('messages').insert([{
+      first_name: firstName,
+      last_name: lastName,
+      phone,
+      email,
+      message,
+      status: 'new',
+      source: 'contact_form'
+    }]);
 
-    // In production, integrate with email service like Resend, SendGrid, or Nodemailer
-    // Example with Resend:
-    // await resend.emails.send({
-    //   from: 'noreply@aqarion.com',
-    //   to: 'info@aqarion.com',
-    //   subject: `رسالة جديدة من ${firstName} ${lastName}`,
-    //   text: `الاسم: ${firstName} ${lastName}\nالهاتف: ${phone}\nالبريد: ${email}\nالرسالة: ${message}`,
-    // });
+    if (dbError) throw dbError;
 
     return Response.json({
       success: true,

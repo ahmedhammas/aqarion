@@ -1,22 +1,32 @@
-import { blogStore } from '@/lib/admin-store';
+import { supabase } from '@/lib/supabase';
 
 export async function GET() {
-  const sorted = [...blogStore].sort((a, b) => b.id - a.id);
-  return Response.json({ posts: sorted, total: sorted.length });
+  const { data, count, error } = await supabase
+    .from('blog_posts')
+    .select('*', { count: 'exact' })
+    .order('id', { ascending: false });
+
+  if (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+
+  return Response.json({ posts: data, total: count });
 }
 
 export async function POST(req) {
   const body = await req.json();
-  const newId = Math.max(...blogStore.map(p => p.id), 0) + 1;
-  const newPost = {
-    id: newId,
-    slug: body.slug || body.title?.replace(/\s+/g, '-') || `post-${newId}`,
+  const slug = body.slug || body.title?.replace(/\s+/g, '-') || `post-${Date.now()}`;
+  
+  const { data, error } = await supabase.from('blog_posts').insert([{
+    ...body,
+    slug,
     views_count: 0,
     status: body.status || 'published',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    ...body,
-  };
-  blogStore.unshift(newPost);
-  return Response.json({ post: newPost }, { status: 201 });
+  }]).select().single();
+
+  if (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+
+  return Response.json({ post: data }, { status: 201 });
 }
