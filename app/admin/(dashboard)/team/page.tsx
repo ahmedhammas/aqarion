@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit, Trash2, Phone, Mail, Loader2, X, Save, User, GripVertical } from 'lucide-react';
+import Image from 'next/image';
 
 interface TeamMember {
   id: number; name: string; role: string; bio?: string; avatar?: string;
@@ -59,7 +60,9 @@ export default function TeamPage() {
           <motion.div key={member.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
             className="glass-card-dark rounded-2xl p-6 border border-gold/10 text-center group">
             {member.avatar ? (
-              <img src={member.avatar} alt={member.name} className="w-20 h-20 rounded-full mx-auto mb-4 object-cover border-2 border-gold/20" />
+              <div className="relative w-20 h-20 mx-auto mb-4 flex-shrink-0">
+                <Image src={member.avatar} alt={member.name} fill sizes="80px" className="rounded-full object-cover border-2 border-gold/20" />
+              </div>
             ) : (
               <div className="w-20 h-20 rounded-full mx-auto mb-4 bg-gold/10 flex items-center justify-center border-2 border-gold/20">
                 <User className="w-8 h-8 text-gold/50" />

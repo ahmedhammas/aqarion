@@ -15,6 +15,7 @@ const tajawal = Tajawal({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://real-estate-tawny-chi-77.vercel.app'),
   title: 'عقاريون المتحدة | منصة العقارات الفاخرة في مصر',
   description: 'منصة عقاريون المتحدة - أفضل منصة عقارية في مصر والشرق الأوسط للبحث عن الفلل، الشقق الفاخرة، والمقرات الإدارية.',
   openGraph: {

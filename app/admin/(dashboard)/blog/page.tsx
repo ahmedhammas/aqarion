@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Plus, Edit, Trash2, Eye, Calendar, User, Search, Loader2, FileText } from 'lucide-react';
 
 interface BlogPost {
@@ -54,10 +55,10 @@ export default function BlogAdminPage() {
               className="glass-card-dark rounded-2xl border border-gold/10 overflow-hidden group">
               {post.cover_image && (
                 <div className="h-40 overflow-hidden relative">
-                  <img src={post.cover_image} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#020a18] to-transparent" />
-                  <span className="absolute top-3 right-3 bg-gold text-white px-2 py-0.5 rounded-full font-cairo text-[10px] font-bold">{post.category}</span>
-                  <span className={`absolute top-3 left-3 px-2 py-0.5 rounded-full font-cairo text-[10px] font-bold ${post.status === 'published' ? 'bg-emerald-400/20 text-emerald-400' : 'bg-yellow-400/20 text-yellow-400'}`}>
+                  <Image src={post.cover_image} alt={post.title} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#020a18] to-transparent z-10" />
+                  <span className="absolute top-3 right-3 z-20 bg-gold text-white px-2 py-0.5 rounded-full font-cairo text-[10px] font-bold shadow-lg">{post.category}</span>
+                  <span className={`absolute top-3 left-3 z-20 px-2 py-0.5 rounded-full font-cairo text-[10px] font-bold shadow-lg ${post.status === 'published' ? 'bg-emerald-500 text-white' : 'bg-yellow-500 text-white'}`}>
                     {post.status === 'published' ? 'منشور' : 'مسودة'}
                   </span>
                 </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Plus, Search, Filter, Eye, Edit, Trash2, Star, StarOff,
   MapPin, BedDouble, Maximize, ChevronLeft, ChevronRight, Loader2, AlertTriangle
@@ -157,7 +158,9 @@ export default function PropertiesAdminPage() {
                   <tr key={prop.id} className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
-                        <img src={prop.image} alt={prop.name} className="w-12 h-12 rounded-xl object-cover flex-shrink-0" />
+                        <div className="relative w-12 h-12 flex-shrink-0">
+                          <Image src={prop.image} alt={prop.name} fill sizes="48px" className="rounded-xl object-cover" />
+                        </div>
                         <div className="min-w-0">
                           <p className="font-cairo text-white text-sm font-bold truncate max-w-[200px]">{prop.name}</p>
                           <p className="font-cairo text-white/40 text-xs flex items-center gap-1">

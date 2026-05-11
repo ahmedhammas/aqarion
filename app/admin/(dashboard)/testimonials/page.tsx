@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Plus, Edit, Trash2, Eye, EyeOff, Loader2, X, Save, User } from 'lucide-react';
+import Image from 'next/image';
 
 interface Testimonial {
   id: number; client_name: string; client_role?: string; client_avatar?: string;
@@ -65,7 +66,9 @@ export default function TestimonialsPage() {
             className={`glass-card-dark rounded-2xl p-5 border transition-all ${t.is_published ? 'border-gold/10' : 'border-white/5 opacity-60'}`}>
             <div className="flex items-start gap-3 mb-3">
               {t.client_avatar ? (
-                <img src={t.client_avatar} alt={t.client_name} className="w-10 h-10 rounded-full object-cover" />
+                <div className="relative w-10 h-10 flex-shrink-0">
+                  <Image src={t.client_avatar} alt={t.client_name} fill sizes="40px" className="rounded-full object-cover" />
+                </div>
               ) : (
                 <div className="w-10 h-10 rounded-full bg-gold/15 flex items-center justify-center"><User className="w-5 h-5 text-gold" /></div>
               )}

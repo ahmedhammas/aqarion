@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Building2, MessageSquare, Eye, FileText, TrendingUp, TrendingDown,
   Plus, PenSquare, Mail, ArrowLeft, Loader2
@@ -235,7 +236,9 @@ export default function DashboardPage() {
             {data.topProperties.map((prop, i) => (
               <div key={prop.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/[0.03] transition-colors">
                 <span className="font-cairo font-bold text-gold/60 text-sm w-5">{i + 1}</span>
-                <img src={prop.image} alt={prop.name} className="w-10 h-10 rounded-lg object-cover" />
+                <div className="relative w-10 h-10 flex-shrink-0">
+                  <Image src={prop.image} alt={prop.name} fill sizes="40px" className="rounded-lg object-cover" />
+                </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-cairo text-white text-sm font-bold truncate">{prop.name}</p>
                   <p className="font-cairo text-white/40 text-xs flex items-center gap-1">
