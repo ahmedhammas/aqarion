@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Calendar, User, ArrowLeft, ChevronLeft, Search } from 'lucide-react';
-import { blogPosts } from '@/data/properties';
 import { fadeUp } from '@/lib/animations';
 
 const categories = ['الكل', 'استثمار', 'نصائح', 'ديكور'];
@@ -12,9 +11,21 @@ const categories = ['الكل', 'استثمار', 'نصائح', 'ديكور'];
 export default function BlogPage() {
   const [activeCategory, setActiveCategory] = useState('الكل');
   const [searchQuery, setSearchQuery] = useState('');
+  const [blogData, setBlogData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/admin/blog')
+      .then(r => r.json())
+      .then(d => {
+        setBlogData(d.posts || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
   const filtered = useMemo(() => {
-    let result = [...blogPosts];
+    let result = [...blogData];
     if (activeCategory !== 'الكل') {
       result = result.filter((p) => p.category === activeCategory);
     }
@@ -27,7 +38,15 @@ export default function BlogPage() {
       );
     }
     return result;
-  }, [activeCategory, searchQuery]);
+  }, [activeCategory, searchQuery, blogData]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen pt-28 pb-20 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-gold border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pt-28 pb-20">

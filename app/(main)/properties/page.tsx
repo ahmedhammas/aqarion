@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import {
@@ -24,8 +24,21 @@ export default function PropertiesPage() {
 
   const { isFavorite, toggleFavorite } = useFavorites();
 
+  const [propertiesData, setPropertiesData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/admin/properties?perPage=100')
+      .then(r => r.json())
+      .then(d => {
+        setPropertiesData(d.properties || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
   const filtered = useMemo(() => {
-    let result = [...properties];
+    let result = [...propertiesData];
 
     if (city && city !== 'جميع المدن') result = result.filter((p) => p.city === city);
     if (type && type !== 'جميع الأنواع') result = result.filter((p) => p.typeLabel === type);
@@ -49,10 +62,18 @@ export default function PropertiesPage() {
     }
 
     return result;
-  }, [city, type, price, sortBy]);
+  }, [city, type, price, sortBy, propertiesData]);
 
   const totalPages = Math.ceil(filtered.length / perPage);
   const paginatedProperties = filtered.slice((page - 1) * perPage, page * perPage);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen pt-28 pb-20 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-gold border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pt-28 pb-20">

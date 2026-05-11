@@ -1,12 +1,22 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, ArrowLeft, User } from 'lucide-react';
 import Link from 'next/link';
-import { blogPosts } from '@/data/properties';
 import { fadeUp } from '@/lib/animations';
 
 export default function BlogSection() {
+  const [blogPosts, setBlogPosts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('/api/admin/blog?perPage=3')
+      .then(r => r.json())
+      .then(d => {
+        setBlogPosts((d.posts || []).slice(0, 3));
+      })
+      .catch(() => {});
+  }, []);
   return (
     <section id="blog" className="py-24 relative overflow-hidden bg-[#020a18]">
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gold/5 rounded-full blur-[150px] pointer-events-none" />

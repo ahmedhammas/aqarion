@@ -18,8 +18,8 @@ export default function FeaturedPropertiesSection({ properties }: FeaturedProper
   const [hoveredId, setHoveredId] = useState<number | null>(null);
   const { isFavorite, toggleFavorite, count: favCount } = useFavorites();
 
-  // If properties are passed (filtered), use them; otherwise show featured
-  const displayProperties = properties || allProperties.filter((p) => p.featured);
+  // Use properties passed from the parent which fetched them from the API
+  const displayProperties = properties || [];
   const showAll = !!properties;
 
   return (

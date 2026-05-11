@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { properties } from "@/data/properties";
+import { useState, useCallback, useEffect } from "react";
+import { Loader2 } from 'lucide-react';
 
 import HeroSection from '@/components/sections/HeroSection';
 import FiltersSection from '@/components/sections/FiltersSection';
@@ -14,7 +14,6 @@ import BlogSection from '@/components/sections/BlogSection';
 import ContactSection from '@/components/sections/ContactSection';
 import AdSection from '@/components/AdSection';
 
-
 export interface ActiveFilters {
   city: string;
   type: string;
@@ -23,12 +22,27 @@ export interface ActiveFilters {
 }
 
 export default function Home() {
+  const [properties, setProperties] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<ActiveFilters>({
     city: '',
     type: '',
     price: '',
     listingType: '',
   });
+
+  useEffect(() => {
+    fetch('/api/admin/properties?perPage=100')
+      .then(r => r.json())
+      .then(d => {
+        setProperties(d.properties || []);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch properties:', err);
+        setLoading(false);
+      });
+  }, []);
 
   const handleFilter = useCallback((newFilters: ActiveFilters) => {
     setFilters(newFilters);
@@ -64,6 +78,14 @@ export default function Home() {
     }
     return true;
   });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#020a18]">
+        <Loader2 className="w-8 h-8 text-gold animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <>
