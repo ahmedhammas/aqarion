@@ -17,6 +17,15 @@ export default function AdSection({ position }: { position: string }) {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
+    // For popup ads, check if already seen in this session
+    if (position === 'popup' && typeof window !== 'undefined') {
+      const hasSeenPopup = sessionStorage.getItem('hasSeenPopupAd');
+      if (hasSeenPopup) {
+        setIsVisible(false);
+        return;
+      }
+    }
+
     fetch('/api/ads')
       .then(r => r.json())
       .then(d => {
@@ -28,6 +37,13 @@ export default function AdSection({ position }: { position: string }) {
       })
       .catch(err => console.error('Error fetching ads:', err));
   }, [position]);
+
+  const handleClosePopup = () => {
+    setIsVisible(false);
+    if (position === 'popup' && typeof window !== 'undefined') {
+      sessionStorage.setItem('hasSeenPopupAd', 'true');
+    }
+  };
 
   if (!ad || !isVisible) return null;
 
@@ -44,7 +60,7 @@ export default function AdSection({ position }: { position: string }) {
           className="relative max-w-lg w-full rounded-2xl overflow-hidden border border-gold/20 shadow-2xl shadow-gold/10"
         >
           <button 
-            onClick={() => setIsVisible(false)}
+            onClick={handleClosePopup}
             className="absolute top-4 right-4 z-10 p-2 bg-black/40 hover:bg-black/60 text-white rounded-full transition-colors"
           >
             <X className="w-5 h-5" />
