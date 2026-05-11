@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, BedDouble, Bath, Maximize, Heart, ArrowLeft, SearchX } from 'lucide-react';
@@ -98,10 +100,12 @@ export default function FeaturedPropertiesSection({ properties }: FeaturedProper
                   >
                     <Link href={`/property/${property.id}`}>
                       <div className="relative h-64 overflow-hidden shimmer-skeleton">
-                        <img
+                        <Image
                           src={property.image}
                           alt={property.name}
-                          className="w-full h-full object-cover property-img transition-transform duration-700 relative z-10"
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          className="object-cover property-img transition-transform duration-700 relative z-10"
                           onLoad={(e) => {
                             const target = e.target as HTMLImageElement;
                             target.parentElement?.classList.remove('shimmer-skeleton');
