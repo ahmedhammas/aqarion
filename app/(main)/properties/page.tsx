@@ -7,7 +7,17 @@ import {
   MapPin, BedDouble, Bath, Maximize, Heart, Search, Grid3X3, List,
   ChevronLeft, ArrowUpDown, SearchX
 } from 'lucide-react';
-import { properties, cities, propertyTypes, priceRanges } from '@/data/properties';
+const cities = ['القاهرة', 'الجيزة', 'الإسكندرية', 'الشيخ زايد', 'التجمع الخامس', 'العاصمة الإدارية', 'الساحل الشمالي'];
+const propertyTypes = ['شقة', 'فيلا', 'تاون هاوس', 'مكتب إداري', 'محل تجاري', 'أرض'];
+const priceRanges = [
+  { label: 'الكل', value: 'all' },
+  { label: 'أقل من 1 مليون', value: '0-1000000' },
+  { label: '1 - 3 مليون', value: '1000000-3000000' },
+  { label: '3 - 5 مليون', value: '3000000-5000000' },
+  { label: '5 - 10 مليون', value: '5000000-10000000' },
+  { label: 'أكثر من 10 مليون', value: '10000000+' },
+];
+
 import { useFavorites } from '@/hooks/useFavorites';
 import { fadeUp } from '@/lib/animations';
 

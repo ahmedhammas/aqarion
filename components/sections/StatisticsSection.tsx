@@ -2,7 +2,12 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { stats } from '@/data/properties';
+const statsData = [
+  { label: 'عميل سعيد', value: 1500, suffix: '+' },
+  { label: 'عقار مميز', value: 800, suffix: '+' },
+  { label: 'سنة خبرة', value: 15, suffix: '' },
+  { label: 'مدينة', value: 12, suffix: '' },
+];
 
 function Counter({ from, to, duration = 2 }: { from: number; to: number; duration?: number }) {
   const [count, setCount] = useState(from);
@@ -49,7 +54,7 @@ export default function StatisticsSection() {
           <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
 
           <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4">
-            {stats.map((stat, index) => (
+            {statsData.map((stat, index) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 30 }}

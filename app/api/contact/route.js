@@ -4,7 +4,7 @@ export async function POST(req) {
   try {
     const body = await req.json();
 
-    const { firstName, lastName, phone, email, message } = body;
+    const { firstName, lastName, phone, email, message, propertyId } = body;
 
     if (!firstName || !lastName || !phone || !email || !message) {
       return Response.json(
@@ -13,26 +13,18 @@ export async function POST(req) {
       );
     }
 
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return Response.json(
-        { error: 'البريد الإلكتروني غير صالح' },
-        { status: 400 }
-      );
-    }
-
-    const { error: dbError } = await supabase.from('messages').insert([{
+    const { error } = await supabase.from('messages').insert([{
       first_name: firstName,
       last_name: lastName,
       phone,
       email,
       message,
+      property_id: propertyId || null,
       status: 'new',
       source: 'contact_form'
     }]);
 
-    if (dbError) throw dbError;
+    if (error) throw error;
 
     return Response.json({
       success: true,

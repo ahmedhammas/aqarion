@@ -5,90 +5,96 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-const properties = [
+const mockProperties = [
   {
-    name: 'فيلا الساحل الشمالي',
-    location: 'مارينا',
+    name: 'فيلا نورث كوست الفاخرة',
+    location: 'الساحل الشمالي، الكيلو 120',
     city: 'الساحل الشمالي',
-    price: '١٥,٠٠٠,٠٠٠',
-    priceNum: 15000000,
+    price: '٧٫٥ مليون',
+    priceNum: 7500000,
     bedrooms: 5,
-    bathrooms: 6,
-    area: 450,
+    bathrooms: 4,
+    area: 300,
     type: 'villa',
     typeLabel: 'فيلا',
     image: 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=800',
-    description: 'فيلا فاخرة صف أول على البحر مباشرة مع حمام سباحة خاص وحديقة.',
     featured: true,
-    tag: 'صف أول',
-    status: 'available',
-    listingType: 'sale'
+    tag: 'مميز',
+    listingType: 'sale',
   },
   {
-    name: 'شقة فاخرة بالشيخ زايد',
-    location: 'بيفرلي هيلز',
+    name: 'شقة الشيخ زايد الراقية',
+    location: 'الشيخ زايد، الحي الثالث',
     city: 'الشيخ زايد',
-    price: '٤,٥٠٠,٠٠٠',
-    priceNum: 4500000,
+    price: '٣٫٢ مليون',
+    priceNum: 3200000,
     bedrooms: 3,
-    bathrooms: 3,
-    area: 220,
+    bathrooms: 2,
+    area: 180,
     type: 'apartment',
     typeLabel: 'شقة',
     image: 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=800',
-    description: 'شقة تشطيب الترا سوبر لوكس فيو مفتوح على المساحات الخضراء.',
     featured: true,
-    tag: 'تشطيب كامل',
-    status: 'available',
-    listingType: 'sale'
-  },
-  {
-    name: 'مقر إداري بالعاصمة',
-    location: 'حي المال والأعمال',
-    city: 'العاصمة الإدارية',
-    price: '٨,٥٠٠,٠٠٠',
-    priceNum: 8500000,
-    bedrooms: 0,
-    bathrooms: 2,
-    area: 150,
-    type: 'office',
-    typeLabel: 'مكتب',
-    image: 'https://images.pexels.com/photos/269077/pexels-photo-269077.jpeg?auto=compress&cs=tinysrgb&w=800',
-    description: 'مقر إداري مجهز بالكامل في أميز أبراج العاصمة الإدارية.',
-    featured: false,
-    status: 'available',
-    listingType: 'rent'
+    tag: 'جديد',
+    listingType: 'sale',
   }
 ];
 
-const team = [
-  { name: 'أحمد حسن', role: 'المدير التنفيذي', avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=800' },
-  { name: 'سارة محمد', role: 'مديرة المبيعات', avatar: 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=800' },
-  { name: 'عمر علي', role: 'مستشار عقاري', avatar: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=800' }
-];
-
-const testimonials = [
-  { client_name: 'محمد خالد', client_role: 'مستثمر', content: 'أفضل شركة عقارية تعاملت معها، شفافية واحترافية عالية.', client_avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150', rating: 5, is_published: true },
-  { client_name: 'نور أحمد', client_role: 'عميل', content: 'شكراً لفريق العمل على مساعدتي في إيجاد منزل أحلامي بسهولة.', client_avatar: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=150', rating: 5, is_published: true }
+const mockBlog = [
+  {
+    title: 'مستقبل الاستثمار العقاري في العاصمة الإدارية',
+    excerpt: 'نظرة شاملة على الفرص الاستثمارية الواعدة في العاصمة الإدارية الجديدة وكيف تختار العقار المناسب لضمان أفضل عائد.',
+    author: 'أحمد الراشد',
+    image: 'https://images.pexels.com/photos/1115804/pexels-photo-1115804.jpeg?auto=compress&cs=tinysrgb&w=800',
+    category: 'استثمار',
+  }
 ];
 
 async function seed() {
-  console.log('Seeding Data to Supabase...');
+  console.log('Seeding Properties...');
   
-  await supabase.from('properties').delete().neq('id', 0);
-  await supabase.from('team').delete().neq('id', 0);
-  await supabase.from('testimonials').delete().neq('id', 0);
+  const formattedProperties = mockProperties.map(p => ({
+    name: p.name,
+    location: p.location,
+    city: p.city,
+    price: p.price,
+    pricenum: p.priceNum,
+    bedrooms: p.bedrooms,
+    bathrooms: p.bathrooms,
+    area: p.area,
+    type: p.type,
+    typelabel: p.typeLabel,
+    image: p.image,
+    featured: p.featured,
+    tag: p.tag,
+    listingtype: p.listingType,
+    slug: p.name.replace(/\s+/g, '-'),
+    description: 'عقار فاخر بمواصفات عالمية',
+    status: 'available',
+    is_published: true
+  }));
 
-  await supabase.from('properties').insert(properties.map(p => ({ ...p, slug: p.name.replace(/\s+/g, '-') })));
-  console.log('Inserted properties.');
+  const { error: pError } = await supabase.from('properties').insert(formattedProperties);
+  if (pError) console.error('Error properties:', pError);
 
-  await supabase.from('team').insert(team.map(t => ({ ...t, email: 'info@aqarion.com', is_active: true })));
-  console.log('Inserted team.');
+  console.log('Seeding Blog Posts...');
+  const formattedBlog = mockBlog.map(p => ({
+    title: p.title,
+    excerpt: p.excerpt,
+    author: p.author,
+    cover_image: p.image,
+    category: p.category,
+    slug: p.title.replace(/\s+/g, '-'),
+    content: p.excerpt,
+    tags: [p.category],
+    status: 'published'
+  }));
 
-  await supabase.from('testimonials').insert(testimonials);
-  console.log('Inserted testimonials.');
+  const { error: bError } = await supabase.from('blog_posts').insert(formattedBlog);
+  if (bError) console.error('Error blog:', bError);
 
-  console.log('Seeding Complete!');
+  console.log('Database seeded successfully!');
+  process.exit(0);
 }
 
 seed();

@@ -103,6 +103,36 @@ export default function SettingsPage() {
     setSecLoading(false);
   };
 
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !settings) return;
+
+    setSaving(true);
+    try {
+      const { supabase } = await import('@/lib/supabase');
+      const fileExt = file.name.split('.').pop();
+      const fileName = `logo-${Math.random()}.${fileExt}`;
+      const filePath = `settings/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('images')
+        .getPublicUrl(filePath);
+
+      setSettings({ ...settings, site_logo: publicUrl });
+      showFeedback('success', 'تم رفع اللوجو بنجاح، لا تنسى الحفظ');
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      showFeedback('error', 'فشل رفع الصورة. تأكد من وجود bucket باسم images');
+    }
+    setSaving(false);
+  };
+
   const handleChangePassword = async () => {
     if (pwForm.new_password !== pwForm.confirm) {
       showFeedback('error', 'كلمة المرور الجديدة وتأكيدها غير متطابقان');
@@ -252,26 +282,39 @@ export default function SettingsPage() {
               <div className="w-full md:w-64 space-y-3">
                 <label className="block font-cairo text-sm text-white/60">لوجو الموقع</label>
                 <div
-                  className="relative group aspect-square rounded-2xl overflow-hidden flex items-center justify-center p-4 border"
+                  className="relative group aspect-square rounded-2xl overflow-hidden flex items-center justify-center p-4 border transition-all hover:border-gold/30 cursor-pointer"
                   style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(255,255,255,0.08)' }}
+                  onClick={() => document.getElementById('logo-upload')?.click()}
                 >
                   {settings.site_logo ? (
-                    <img src={settings.site_logo} alt="Logo" className="max-w-full max-h-full object-contain" />
+                    <>
+                      <img src={settings.site_logo} alt="Logo" className="max-w-full max-h-full object-contain" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                        <Upload className="w-6 h-6 text-white" />
+                      </div>
+                    </>
                   ) : (
                     <div className="text-center">
                       <Upload className="w-8 h-8 text-white/20 mx-auto mb-2" />
-                      <p className="text-white/20 text-xs font-cairo">لا يوجد لوجو</p>
+                      <p className="text-white/20 text-xs font-cairo">رفع شعار جديد</p>
                     </div>
                   )}
+                  <input
+                    id="logo-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleLogoUpload}
+                  />
                 </div>
                 <input
                   value={settings.site_logo}
                   onChange={e => update('site_logo', e.target.value)}
-                  placeholder="رابط اللوجو (e.g. /logo.png)"
+                  placeholder="أو ضع رابط اللوجو هنا"
                   className="w-full input-luxury rounded-xl py-2.5 px-3 font-cairo text-xs text-left"
                   dir="ltr"
                 />
-                <p className="font-cairo text-white/30 text-[10px]">أدخل رابط الصورة المحلي أو الخارجي</p>
+                <p className="font-cairo text-white/30 text-[10px]">يمكنك الرفع مباشرة أو وضع رابط خارجي</p>
               </div>
             </div>
           </div>

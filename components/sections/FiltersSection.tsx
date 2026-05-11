@@ -3,8 +3,18 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, MapPin, Chrome as Home, SlidersHorizontal, ChevronDown } from 'lucide-react';
-import { cities, propertyTypes, priceRanges } from '@/data/properties';
-import type { ActiveFilters } from '@/app/page';
+const cities = ['القاهرة', 'الجيزة', 'الإسكندرية', 'الشيخ زايد', 'التجمع الخامس', 'العاصمة الإدارية', 'الساحل الشمالي'];
+const propertyTypes = ['شقة', 'فيلا', 'تاون هاوس', 'مكتب إداري', 'محل تجاري', 'أرض'];
+const priceRanges = [
+  { label: 'الكل', value: 'all' },
+  { label: 'أقل من 1 مليون', value: '0-1000000' },
+  { label: '1 - 3 مليون', value: '1000000-3000000' },
+  { label: '3 - 5 مليون', value: '3000000-5000000' },
+  { label: '5 - 10 مليون', value: '5000000-10000000' },
+  { label: 'أكثر من 10 مليون', value: '10000000+' },
+];
+
+import type { ActiveFilters } from '@/app/(main)/page';
 
 interface FiltersSectionProps {
   onFilter?: (filters: ActiveFilters) => void;

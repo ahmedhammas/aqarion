@@ -3,14 +3,43 @@
 import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Calendar, User, ArrowLeft, ChevronLeft, Share2, MessageCircle } from 'lucide-react';
-import { blogPosts } from '@/data/properties';
+import { Calendar, User, ArrowLeft, ChevronLeft, Share2, MessageCircle, Loader2 } from 'lucide-react';
 import { fadeUp } from '@/lib/animations';
+import { useState, useEffect } from 'react';
 
 export default function BlogPostPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const post = blogPosts.find((p) => p.slug === slug);
+  const [post, setPost] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [relatedPosts, setRelatedPosts] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!slug) return;
+    setLoading(true);
+    fetch('/api/admin/blog')
+      .then(r => r.json())
+      .then(data => {
+        const found = data.posts?.find((p: any) => p.slug === slug);
+        if (found) {
+          setPost(found);
+          setRelatedPosts((data.posts || []).filter((p: any) => p.slug !== slug).slice(0, 2));
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Fetch error:', err);
+        setLoading(false);
+      });
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#020a18]">
+        <Loader2 className="w-8 h-8 text-gold animate-spin" />
+      </div>
+    );
+  }
 
   if (!post) {
     return (
@@ -25,8 +54,6 @@ export default function BlogPostPage() {
       </div>
     );
   }
-
-  const relatedPosts = blogPosts.filter((p) => p.id !== post.id).slice(0, 2);
 
   const shareOnWhatsApp = () => {
     window.open(`https://wa.me/?text=${encodeURIComponent(post.title + '\n' + window.location.href)}`);

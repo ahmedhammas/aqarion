@@ -6,21 +6,55 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import {
   MapPin, BedDouble, Bath, Maximize, Heart, ArrowRight, Share2, Phone,
-  ChevronLeft, ChevronRight, X, Calendar, Building2, Layers, CheckCircle2
+  ChevronLeft, ChevronRight, X, Calendar, Building2, Layers, CheckCircle2,
+  Loader2
 } from 'lucide-react';
-import { properties } from '@/data/properties';
 import { useFavorites } from '@/hooks/useFavorites';
 import { fadeUp } from '@/lib/animations';
+import { useEffect } from 'react';
 
 export default function PropertyDetailPage() {
   const params = useParams();
-  const id = Number(params.id);
-  const property = properties.find((p) => p.id === id);
+  const id = params.id;
+  const [property, setProperty] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [similarProperties, setSimilarProperties] = useState<any[]>([]);
   const { isFavorite, toggleFavorite } = useFavorites();
+
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    fetch(`/api/admin/properties/${id}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.property) {
+          setProperty(data.property);
+          // Fetch similar properties
+          fetch(`/api/admin/properties?city=${data.property.city}&perPage=4`)
+            .then(r => r.json())
+            .then(d => {
+              setSimilarProperties((d.properties || []).filter((p: any) => p.id !== data.property.id).slice(0, 3));
+            });
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Fetch error:', err);
+        setLoading(false);
+      });
+  }, [id]);
 
   const [currentImage, setCurrentImage] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#020a18]">
+        <Loader2 className="w-8 h-8 text-gold animate-spin" />
+      </div>
+    );
+  }
 
   if (!property) {
     return (
@@ -37,10 +71,6 @@ export default function PropertyDetailPage() {
   }
 
   const images = property.images || [property.image];
-  const similarProperties = properties
-    .filter((p) => p.id !== property.id && p.city === property.city)
-    .slice(0, 3);
-
   const nextImage = () => setCurrentImage((prev) => (prev + 1) % images.length);
   const prevImage = () => setCurrentImage((prev) => (prev - 1 + images.length) % images.length);
 

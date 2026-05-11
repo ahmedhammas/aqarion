@@ -1,16 +1,18 @@
 import { MetadataRoute } from 'next';
-import { properties } from '@/data/properties';
-import { blogPosts } from '@/data/properties';
+import { supabase } from '@/lib/supabase';
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const propertyUrls = properties.map((p) => ({
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const { data: properties } = await supabase.from('properties').select('id');
+  const { data: blogPosts } = await supabase.from('blog_posts').select('slug');
+
+  const propertyUrls = (properties || []).map((p) => ({
     url: `https://aqarion.com/property/${p.id}`,
     lastModified: new Date(),
     changeFrequency: 'weekly' as const,
     priority: 0.8,
   }));
 
-  const blogUrls = blogPosts.map((p) => ({
+  const blogUrls = (blogPosts || []).map((p) => ({
     url: `https://aqarion.com/blog/${p.slug}`,
     lastModified: new Date(),
     changeFrequency: 'monthly' as const,

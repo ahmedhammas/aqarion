@@ -1,42 +1,48 @@
-import { adsStore } from '@/lib/admin-store';
+import { supabase } from '@/lib/supabase';
 
 export async function GET() {
-  return Response.json({ ads: adsStore });
+  const { data, error } = await supabase.from('ads').select('*').order('id', { ascending: false });
+  if (error) return Response.json({ error: error.message }, { status: 500 });
+  return Response.json({ ads: data });
 }
 
 export async function POST(req) {
-  const body = await req.json();
-  const newId = Math.max(...adsStore.map(a => a.id), 0) + 1;
-  const newAd = {
-    id: newId,
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    ...body
-  };
-  adsStore.push(newAd);
-  return Response.json({ ad: newAd }, { status: 201 });
+  try {
+    const body = await req.json();
+    const { data, error } = await supabase.from('ads').insert([{
+      ...body,
+      is_active: true,
+      updated_at: new Date().toISOString()
+    }]).select().single();
+    
+    if (error) throw error;
+    return Response.json({ ad: data }, { status: 201 });
+  } catch (error) {
+    return Response.json({ error: 'فشل إضافة الإعلان' }, { status: 500 });
+  }
 }
 
 export async function PUT(req) {
-  const body = await req.json();
-  const index = adsStore.findIndex(a => a.id === body.id);
-  if (index === -1) return Response.json({ error: 'غير موجود' }, { status: 404 });
-
-  adsStore[index] = {
-    ...adsStore[index],
-    ...body,
-    updated_at: new Date().toISOString()
-  };
-  return Response.json({ ad: adsStore[index] });
+  try {
+    const body = await req.json();
+    const { id, ...updateData } = body;
+    const { data, error } = await supabase.from('ads').update({
+      ...updateData,
+      updated_at: new Date().toISOString()
+    }).eq('id', id).select().single();
+    
+    if (error) throw error;
+    return Response.json({ ad: data });
+  } catch (error) {
+    return Response.json({ error: 'فشل تحديث الإعلان' }, { status: 500 });
+  }
 }
 
 export async function DELETE(req) {
   const { searchParams } = new URL(req.url);
-  const id = parseInt(searchParams.get('id'));
-  const index = adsStore.findIndex(a => a.id === id);
-  if (index === -1) return Response.json({ error: 'غير موجود' }, { status: 404 });
-
-  adsStore.splice(index, 1);
+  const id = searchParams.get('id');
+  const { error } = await supabase.from('ads').delete().eq('id', id);
+  
+  if (error) return Response.json({ error: 'فشل حذف الإعلان' }, { status: 500 });
   return Response.json({ success: true });
 }
