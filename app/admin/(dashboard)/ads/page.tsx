@@ -156,8 +156,8 @@ export default function AdsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="font-cairo font-bold text-2xl text-white">المساحات الإعلانية</h1>
-          <p className="font-cairo text-white/40 text-sm mt-1">إدارة الإعلانات في مواضع مختلفة من الموقع</p>
+          <h1 className="font-cairo font-bold text-2xl text-white">المساحات الإعلانية (نسخة الرفع)</h1>
+          <p className="font-cairo text-white/40 text-sm mt-1">إدارة الإعلانات مع خاصية رفع الصور</p>
         </div>
         <div className="flex gap-2">
           <a href="/" target="_blank" className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 text-white/50 hover:text-white hover:border-white/20 transition-all font-cairo text-sm">
