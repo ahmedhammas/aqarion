@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, Edit, Trash2, Eye, EyeOff, Loader2, X, Save,
   ExternalLink, Layout, Maximize, Sidebar as SidebarIcon,
-  Monitor, Image, Link as LinkIcon, ToggleLeft, ToggleRight, Upload
+  Monitor, Image, Link as LinkIcon, ToggleLeft, ToggleRight, Upload, Search
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
