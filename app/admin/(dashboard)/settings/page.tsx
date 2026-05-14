@@ -115,20 +115,20 @@ export default function SettingsPage() {
       const filePath = `settings/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('images')
+        .from('site')
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
-        .from('images')
+        .from('site')
         .getPublicUrl(filePath);
 
       setSettings({ ...settings, site_logo: publicUrl });
       showFeedback('success', 'تم رفع اللوجو بنجاح، لا تنسى الحفظ');
     } catch (error: any) {
       console.error('Upload error:', error);
-      showFeedback('error', 'فشل رفع الصورة. تأكد من وجود bucket باسم images');
+      showFeedback('error', 'فشل رفع الصورة. تأكد من وجود bucket باسم site وجعله Public');
     }
     setSaving(false);
   };

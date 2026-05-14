@@ -11,6 +11,7 @@ export async function GET() {
         id: 1,
         site_name: 'عقاريون المتحدة',
         site_tagline: 'منصة العقارات الفاخرة في مصر',
+        site_logo: '',
         whatsapp_number: '201001234567',
         phone_number: '+20 123 456 7890',
         email: 'info@aqarion.com',
