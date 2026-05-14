@@ -9,8 +9,11 @@ export async function GET() {
 export async function POST(req) {
   try {
     const body = await req.json();
+    // Remove id and created_at if present to let Supabase handle them
+    const { id, created_at, ...insertData } = body;
+    
     const { data, error } = await supabase.from('ads').insert([{
-      ...body,
+      ...insertData,
       is_active: true,
       updated_at: new Date().toISOString()
     }]).select().single();
