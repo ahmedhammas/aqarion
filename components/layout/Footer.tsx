@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Building2, Facebook, Twitter, Instagram, Linkedin, MapPin, Phone, Mail } from 'lucide-react';
+import AdSection from '../AdSection';
 
 export default function Footer() {
   const [settings, setSettings] = useState<any>(null);
@@ -15,6 +16,7 @@ export default function Footer() {
 
   return (
     <footer className="bg-[#020a18] pt-20 pb-10 border-t border-gold/10 relative overflow-hidden">
+      <AdSection position="footer_banner" />
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

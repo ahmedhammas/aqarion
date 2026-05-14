@@ -20,6 +20,7 @@ const priceRanges = [
 
 import { useFavorites } from '@/hooks/useFavorites';
 import { fadeUp } from '@/lib/animations';
+import AdSection from '@/components/AdSection';
 
 type SortOption = 'newest' | 'cheapest' | 'expensive' | 'largest';
 
@@ -152,6 +153,8 @@ export default function PropertiesPage() {
             </div>
           </div>
         </motion.div>
+
+        <AdSection position="search_top" />
 
         {/* Properties */}
         <AnimatePresence mode="wait">

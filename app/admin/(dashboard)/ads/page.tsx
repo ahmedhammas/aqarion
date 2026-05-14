@@ -23,6 +23,8 @@ const positions = [
   { id: 'home_banner', label: 'بانر رئيسي', icon: Layout, desc: 'يظهر بين الأقسام الرئيسية على الصفحة الرئيسية', color: 'from-blue-500 to-cyan-500' },
   { id: 'popup', label: 'نافذة منبثقة', icon: Maximize, desc: 'يظهر عند دخول الموقع - إعلان بارز', color: 'from-purple-500 to-pink-500' },
   { id: 'sidebar', label: 'شريط جانبي', icon: SidebarIcon, desc: 'إعلان صغير في الشريط الجانبي للصفحات', color: 'from-amber-500 to-orange-500' },
+  { id: 'footer_banner', label: 'بانر الفوتر', icon: Monitor, desc: 'يظهر في أسفل جميع صفحات الموقع', color: 'from-emerald-500 to-teal-500' },
+  { id: 'search_top', label: 'أعلى البحث', icon: Search, desc: 'يظهر في أعلى نتائج البحث', color: 'from-indigo-500 to-blue-500' },
 ];
 
 const emptyAd = { id: 0, title: '', image_url: '', link: '', position: 'home_banner', is_active: true, created_at: '' };
@@ -139,9 +141,10 @@ export default function AdsPage() {
         .getPublicUrl(filePath);
 
       setEditModal({ ...editModal, image_url: publicUrl });
+      alert('تم رفع الصورة بنجاح ✓');
     } catch (error: any) {
-      console.error('Upload error:', error);
-      alert('فشل رفع الصورة: تأكد من وجود Bucket باسم ads في Supabase وجعله Public');
+      console.error('Upload error detail:', error);
+      alert(`خطأ في الرفع: ${error.message || error.error_description || 'تأكد من إنشاء Bucket باسم ads في Supabase وجعله Public'}`);
     } finally {
       setUploading(false);
     }

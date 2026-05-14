@@ -164,5 +164,65 @@ export default function AdSection({ position }: { position: string }) {
     );
   }
 
+  if (position === 'footer_banner') {
+    return (
+      <div className="py-8 px-4 border-t border-white/5 bg-black/20">
+        <div className="max-w-7xl mx-auto">
+          <motion.a 
+            href={ad.link}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            className="block relative h-[120px] md:h-[180px] rounded-2xl overflow-hidden border border-white/10 group"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img 
+              src={ad.image_url} 
+              alt={ad.title} 
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+              loading="lazy"
+              onError={(e: any) => e.target.style.backgroundColor = '#1a1a1a'}
+            />
+            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+              <div className="text-center px-4">
+                <h3 className="font-cairo font-bold text-lg md:text-xl text-white mb-2">{ad.title}</h3>
+                <span className="font-cairo text-gold text-xs font-bold px-3 py-1 bg-gold/10 rounded-full border border-gold/20">إعلان</span>
+              </div>
+            </div>
+          </motion.a>
+        </div>
+      </div>
+    );
+  }
+
+  if (position === 'search_top') {
+    return (
+      <div className="mb-8">
+        <motion.a 
+          href={ad.link}
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="block relative h-[100px] md:h-[140px] rounded-2xl overflow-hidden border border-gold/10 group"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img 
+            src={ad.image_url} 
+            alt={ad.title} 
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+            loading="lazy"
+            onError={(e: any) => e.target.style.backgroundColor = '#1a1a1a'}
+          />
+          <div className="absolute inset-0 bg-gradient-to-l from-black/80 via-black/40 to-transparent flex items-center px-6 md:px-10">
+            <div>
+              <span className="font-cairo text-[10px] font-bold text-gold bg-gold/10 px-2 py-0.5 rounded border border-gold/20 mb-2 inline-block">إعلان ممول</span>
+              <h3 className="font-cairo font-bold text-white text-base md:text-lg">{ad.title}</h3>
+            </div>
+          </div>
+        </motion.a>
+      </div>
+    );
+  }
+
   return null;
 }

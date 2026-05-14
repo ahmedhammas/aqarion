@@ -44,10 +44,18 @@ export async function PUT(req) {
 }
 
 export async function DELETE(req) {
-  const { searchParams } = new URL(req.url);
-  const id = searchParams.get('id');
-  const { error } = await supabase.from('ads').delete().eq('id', id);
-  
-  if (error) return Response.json({ error: 'فشل حذف الإعلان' }, { status: 500 });
-  return Response.json({ success: true });
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+    
+    if (!id) return Response.json({ error: 'معرف الإعلان مطلوب' }, { status: 400 });
+
+    const { error } = await supabase.from('ads').delete().eq('id', parseInt(id));
+    
+    if (error) throw error;
+    return Response.json({ success: true });
+  } catch (error: any) {
+    console.error('Ads DELETE Error:', error);
+    return Response.json({ error: error.message || 'فشل حذف الإعلان' }, { status: 500 });
+  }
 }
