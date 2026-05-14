@@ -89,6 +89,9 @@ export default function Home() {
 
   return (
     <>
+      <div className="fixed top-0 left-0 right-0 z-[9999] bg-red-600 text-white text-center py-2 font-bold">
+        نسخة الهاتف - التحقق من النشر
+      </div>
       <AdSection position="popup" />
       <HeroSection />
       <FiltersSection onFilter={handleFilter} />
