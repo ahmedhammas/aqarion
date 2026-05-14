@@ -18,7 +18,8 @@ export async function POST(req) {
     if (error) throw error;
     return Response.json({ ad: data }, { status: 201 });
   } catch (error) {
-    return Response.json({ error: 'فشل إضافة الإعلان' }, { status: 500 });
+    console.error('Ads POST Error:', error);
+    return Response.json({ error: error.message || 'فشل إضافة الإعلان' }, { status: 500 });
   }
 }
 
@@ -34,7 +35,8 @@ export async function PUT(req) {
     if (error) throw error;
     return Response.json({ ad: data });
   } catch (error) {
-    return Response.json({ error: 'فشل تحديث الإعلان' }, { status: 500 });
+    console.error('Ads PUT Error:', error);
+    return Response.json({ error: error.message || 'فشل تحديث الإعلان' }, { status: 500 });
   }
 }
 
