@@ -5,11 +5,12 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Mail, Lock, User, Loader2, UserPlus, ArrowRight } from 'lucide-react';
+import { Mail, Lock, User, Loader2, UserPlus, ArrowRight, Phone } from 'lucide-react';
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -35,6 +36,7 @@ export default function RegisterPage() {
         options: {
           data: {
             full_name: name,
+            phone: phone,
           },
         },
       });
@@ -55,6 +57,7 @@ export default function RegisterPage() {
         const userRecord: any = {
           email,
           full_name: name,
+          phone: phone,
           role: 'user',
           is_active: true,
         };
@@ -148,6 +151,22 @@ export default function RegisterPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full input-luxury rounded-xl py-3 pr-12 pl-4 font-cairo text-sm"
                     placeholder="example@domain.com"
+                    dir="ltr"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block font-cairo text-sm text-white/70">رقم الهاتف</label>
+                <div className="relative">
+                  <Phone className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
+                  <input
+                    type="tel"
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full input-luxury rounded-xl py-3 pr-12 pl-4 font-cairo text-sm"
+                    placeholder="01xxxxxxxxx"
                     dir="ltr"
                   />
                 </div>
