@@ -105,7 +105,7 @@ export default function RegisterPage() {
 
         <div className="glass-card-dark rounded-3xl p-8 border border-gold/20 shadow-2xl">
           <div className="text-center mb-8">
-            <h1 className="font-cairo font-bold text-3xl text-white mb-2">إنشاء حساب جديد</h1>
+            <h1 className="font-cairo font-bold text-3xl text-white mb-2">إنشاء حساب جديد (مُحدث)</h1>
             <p className="font-cairo text-white/50 text-sm">انضم إلينا واستمتع بمميزات حصرية</p>
           </div>
 
