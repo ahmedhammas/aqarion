@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Phone, Heart } from 'lucide-react';
+import { Menu, X, Phone, Heart, User as UserIcon, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useUserAuth } from '@/hooks/useUserAuth';
 
 const navLinks = [
   { label: 'الرئيسية', href: '/' },
@@ -19,6 +20,7 @@ export default function Navbar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [settings, setSettings] = useState<any>(null);
   const { count } = useFavorites();
+  const { user, logout } = useUserAuth();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -96,6 +98,34 @@ export default function Navbar() {
                   </span>
                 )}
               </Link>
+
+              {/* User Auth Button */}
+              {user ? (
+                <div className="relative group">
+                  <button className="flex items-center gap-2 p-2 rounded-xl border border-gold/20 text-white/70 hover:text-gold hover:border-gold/50 transition-colors">
+                    <UserIcon className="w-5 h-5" />
+                    <span className="font-cairo text-sm hidden sm:block truncate max-w-[80px]">
+                      {user.user_metadata?.full_name?.split(' ')[0] || 'حسابي'}
+                    </span>
+                  </button>
+                  <div className="absolute top-full left-0 mt-2 w-48 rounded-xl bg-navy-dark border border-white/10 p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all shadow-xl">
+                    <div className="p-2 border-b border-white/5 mb-2">
+                      <p className="font-cairo text-xs text-white/50 truncate">{user.email}</p>
+                    </div>
+                    <button onClick={logout} className="w-full text-right flex items-center gap-2 p-2 text-sm text-red-400 hover:bg-white/5 rounded-lg font-cairo transition-colors">
+                      <LogOut className="w-4 h-4" /> تسجيل الخروج
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <Link
+                  href="/login"
+                  className="flex items-center gap-2 p-2 rounded-xl border border-gold/20 text-white/70 hover:text-gold hover:border-gold/50 transition-colors"
+                  title="تسجيل الدخول"
+                >
+                  <UserIcon className="w-5 h-5" />
+                </Link>
+              )}
 
               <Link
                 href="/#contact"

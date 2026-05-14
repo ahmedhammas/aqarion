@@ -35,3 +35,8 @@ env.local
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# backups and scratch
+real-estate/
+scratch/
+my-openai-app/

@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS users (
   phone TEXT,
   role TEXT DEFAULT 'user' CHECK (role IN ('admin', 'agent', 'user')),
   avatar_url TEXT,
+  notes TEXT,
+  is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -145,12 +147,20 @@ CREATE TABLE IF NOT EXISTS analytics_events (
 
 -- 9. SITE_SETTINGS (إعدادات الموقع)
 CREATE TABLE IF NOT EXISTS site_settings (
-  key TEXT PRIMARY KEY,
-  value TEXT NOT NULL,
-  label TEXT,
-  type TEXT DEFAULT 'text',
-  category TEXT DEFAULT 'general',
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  id INT PRIMARY KEY DEFAULT 1,
+  site_name TEXT DEFAULT 'عقاريون المتحدة',
+  site_tagline TEXT DEFAULT 'منصة العقارات الفاخرة في مصر',
+  site_logo TEXT,
+  whatsapp_number TEXT,
+  phone_number TEXT,
+  email TEXT,
+  address TEXT,
+  announcement_text TEXT,
+  announcement_active BOOLEAN DEFAULT TRUE,
+  properties_per_page INT DEFAULT 6,
+  openai_model TEXT DEFAULT 'gpt-4o-mini',
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT one_row CHECK (id = 1)
 );
 
 -- ======================================================
@@ -170,17 +180,33 @@ CREATE INDEX IF NOT EXISTS idx_analytics_events_type ON analytics_events(event_t
 CREATE INDEX IF NOT EXISTS idx_analytics_events_created ON analytics_events(created_at);
 
 -- ======================================================
--- DEFAULT SITE SETTINGS
+-- INITIAL DATA & RLS
 -- ======================================================
-INSERT INTO site_settings (key, value, label, type, category) VALUES
-('site_name', 'عقاريون المتحدة', 'اسم الموقع', 'text', 'general'),
-('site_tagline', 'منصة العقارات الفاخرة في مصر', 'الشعار', 'text', 'general'),
-('whatsapp_number', '201001234567', 'رقم واتساب', 'text', 'contact'),
-('phone_number', '+20 123 456 7890', 'رقم الهاتف', 'text', 'contact'),
-('email', 'info@aqarion.com', 'البريد الإلكتروني', 'text', 'contact'),
-('address', 'القاهرة، التجمع الخامس، شارع التسعين', 'العنوان', 'text', 'contact'),
-('announcement_text', 'عروض حصرية على فيلل الساحل الشمالي | تواصل الآن', 'نص الإعلان', 'text', 'marketing'),
-('announcement_active', 'true', 'تفعيل الإعلان', 'boolean', 'marketing'),
-('properties_per_page', '6', 'عقارات في الصفحة', 'number', 'listings'),
-('openai_model', 'gpt-4o-mini', 'نموذج الذكاء الاصطناعي', 'text', 'ai')
-ON CONFLICT (key) DO NOTHING;
+INSERT INTO site_settings (id, site_name, site_tagline, whatsapp_number, phone_number, email, address, announcement_text)
+VALUES (1, 'عقاريون المتحدة', 'منصة العقارات الفاخرة في مصر', '201001234567', '+20 123 456 7890', 'info@aqarion.com', 'القاهرة، التجمع الخامس، شارع التسعين', 'عروض حصرية على فيلل الساحل الشمالي | تواصل الآن')
+ON CONFLICT (id) DO NOTHING;
+
+-- تعطيل الحماية للجداول لتسهيل التطوير (Disable RLS)
+ALTER TABLE users DISABLE ROW LEVEL SECURITY;
+ALTER TABLE properties DISABLE ROW LEVEL SECURITY;
+ALTER TABLE blog_posts DISABLE ROW LEVEL SECURITY;
+ALTER TABLE contact_messages DISABLE ROW LEVEL SECURITY;
+ALTER TABLE testimonials DISABLE ROW LEVEL SECURITY;
+ALTER TABLE team_members DISABLE ROW LEVEL SECURITY;
+ALTER TABLE property_favorites DISABLE ROW LEVEL SECURITY;
+ALTER TABLE analytics_events DISABLE ROW LEVEL SECURITY;
+ALTER TABLE site_settings DISABLE ROW LEVEL SECURITY;
+
+-- 10. ADS (الإعلانات)
+CREATE TABLE IF NOT EXISTS ads (
+  id SERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  image_url TEXT NOT NULL,
+  link TEXT,
+  position TEXT DEFAULT 'home_banner',
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE ads DISABLE ROW LEVEL SECURITY;

@@ -1,7 +1,9 @@
-import { clientsStore } from '@/lib/admin-store';
+import { supabase } from '@/lib/supabase';
 
 export async function GET() {
-  return Response.json({ clients: clientsStore });
+  const { data, error } = await supabase.from('users').select('*').eq('role', 'user').order('created_at', { ascending: false });
+  if (error) return Response.json({ error: error.message }, { status: 500 });
+  return Response.json({ clients: data });
 }
 
 export async function POST(req) {
@@ -13,25 +15,24 @@ export async function POST(req) {
       return Response.json({ error: 'البريد الإلكتروني والاسم مطلوبان' }, { status: 400 });
     }
 
-    const existing = clientsStore.find(c => c.email === email);
-    if (existing) {
-      return Response.json({ error: 'البريد الإلكتروني مسجل بالفعل' }, { status: 409 });
-    }
-
-    const newClient = {
-      id: `client-${Date.now()}`,
+    const clientRecord = {
       email,
       full_name,
       phone: phone || '',
-      role: 'client',
-      is_active: is_active !== false,
+      role: 'user',
       notes: notes || '',
-      created_at: new Date().toISOString(),
+      is_active: is_active !== undefined ? Boolean(is_active) : true,
     };
 
-    clientsStore.push(newClient);
-    return Response.json({ client: newClient }, { status: 201 });
-  } catch {
+    const { data, error } = await supabase.from('users').insert([clientRecord]).select().single();
+
+    if (error) {
+      if (error.code === '23505') return Response.json({ error: 'البريد الإلكتروني مسجل بالفعل' }, { status: 409 });
+      throw error;
+    }
+
+    return Response.json({ client: data }, { status: 201 });
+  } catch (error) {
     return Response.json({ error: 'حدث خطأ في الخادم' }, { status: 500 });
   }
 }
@@ -39,13 +40,13 @@ export async function POST(req) {
 export async function PUT(req) {
   try {
     const body = await req.json();
-    const index = clientsStore.findIndex(c => c.id === body.id);
-    if (index === -1) {
-      return Response.json({ error: 'العميل غير موجود' }, { status: 404 });
-    }
-    clientsStore[index] = { ...clientsStore[index], ...body };
-    return Response.json({ client: clientsStore[index] });
-  } catch {
+    const { id, created_at, ...updateData } = body;
+    
+    const { data, error } = await supabase.from('users').update(updateData).eq('id', id).select().single();
+    if (error) throw error;
+    
+    return Response.json({ client: data });
+  } catch (error) {
     return Response.json({ error: 'حدث خطأ في الخادم' }, { status: 500 });
   }
 }
@@ -53,10 +54,9 @@ export async function PUT(req) {
 export async function DELETE(req) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');
-  const index = clientsStore.findIndex(c => c.id === id);
-  if (index === -1) {
-    return Response.json({ error: 'العميل غير موجود' }, { status: 404 });
-  }
-  clientsStore.splice(index, 1);
+  
+  const { error } = await supabase.from('users').delete().eq('id', id);
+  if (error) return Response.json({ error: 'حدث خطأ في الخادم' }, { status: 500 });
+  
   return Response.json({ success: true });
 }

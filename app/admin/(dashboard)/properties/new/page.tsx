@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
-  Save, ArrowRight, Building2, MapPin, DollarSign, Info, Image, Settings, Loader2,
-  BedDouble, Bath, Maximize, Calendar, Layers
+  Save, ArrowRight, ArrowLeft, Building2, MapPin, DollarSign, Info, Image, Settings, Loader2,
+  BedDouble, Bath, Maximize, Calendar, Layers, CheckCircle2
 } from 'lucide-react';
 
 const tabs = [
@@ -93,19 +93,32 @@ export default function NewPropertyPage() {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 bg-white/[0.02] p-1 rounded-xl overflow-x-auto">
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-cairo text-sm font-medium transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-gold/15 text-gold' : 'text-white/50 hover:text-white'
+      {/* Stepper Wizard */}
+      <div className="relative flex justify-between items-center bg-white/[0.01] p-6 rounded-2xl mb-8 border border-white/5">
+        <div className="absolute top-1/2 left-8 right-8 h-0.5 bg-white/5 -z-10 -translate-y-1/2" />
+        {tabs.map((tab, index) => {
+          const currentIndex = tabs.findIndex(t => t.id === activeTab);
+          const isPassed = index < currentIndex;
+          const isActive = index === currentIndex;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex flex-col items-center gap-3 transition-all relative z-10 ${
+                isActive ? 'text-gold' : isPassed ? 'text-emerald-400' : 'text-white/30'
               }`}
-          >
-            <tab.icon className="w-4 h-4" />
-            {tab.label}
-          </button>
-        ))}
+            >
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
+                isActive ? 'bg-gold/20 border-2 border-gold shadow-[0_0_15px_rgba(197,139,91,0.3)]' 
+                : isPassed ? 'bg-emerald-400/20 border-2 border-emerald-400' 
+                : 'bg-[#071739] border-2 border-white/10'
+              }`}>
+                {isPassed ? <CheckCircle2 className="w-5 h-5" /> : <tab.icon className="w-5 h-5" />}
+              </div>
+              <span className={`font-cairo text-sm font-bold hidden sm:block ${isActive ? 'scale-110' : ''}`}>{tab.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Tab Content */}
@@ -288,6 +301,45 @@ export default function NewPropertyPage() {
           </div>
         )}
       </motion.div>
+
+      {/* Navigation Footer */}
+      <div className="flex items-center justify-between mt-8 pt-6 border-t border-white/10">
+        <button
+          onClick={() => {
+            const currentIndex = tabs.findIndex(t => t.id === activeTab);
+            if (currentIndex > 0) setActiveTab(tabs[currentIndex - 1].id);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          disabled={activeTab === tabs[0].id}
+          className={`px-6 py-2.5 rounded-xl font-cairo text-sm font-bold transition-all flex items-center gap-2 ${
+            activeTab === tabs[0].id ? 'opacity-0 pointer-events-none' : 'btn-outline-gold'
+          }`}
+        >
+          <ArrowRight className="w-4 h-4" /> الخطوة السابقة
+        </button>
+
+        {activeTab !== tabs[tabs.length - 1].id ? (
+          <button
+            onClick={() => {
+              const currentIndex = tabs.findIndex(t => t.id === activeTab);
+              if (currentIndex < tabs.length - 1) setActiveTab(tabs[currentIndex + 1].id);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="btn-gold px-8 py-2.5 rounded-xl font-cairo text-sm font-bold flex items-center gap-2 shadow-lg shadow-gold/20"
+          >
+            الخطوة التالية <ArrowLeft className="w-4 h-4" />
+          </button>
+        ) : (
+          <button
+            onClick={() => handleSave(true)}
+            disabled={saving}
+            className="px-8 py-2.5 rounded-xl font-cairo text-sm font-bold flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white border-none shadow-lg shadow-emerald-500/20 transition-all hover:scale-105"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            تأكيد ونشر العقار
+          </button>
+        )}
+      </div>
     </div>
   );
 }

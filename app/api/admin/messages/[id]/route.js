@@ -9,7 +9,7 @@ export async function PUT(req, { params }) {
     updateData.replied_at = new Date().toISOString();
   }
 
-  const { data, error } = await supabase.from('messages').update(updateData).eq('id', id).select().single();
+  const { data, error } = await supabase.from('contact_messages').update(updateData).eq('id', id).select().single();
   
   if (error) return Response.json({ error: 'فشل تحديث الرسالة' }, { status: 500 });
   return Response.json({ message: data });
@@ -17,7 +17,7 @@ export async function PUT(req, { params }) {
 
 export async function DELETE(req, { params }) {
   const id = params.id;
-  const { error } = await supabase.from('messages').delete().eq('id', id);
+  const { error } = await supabase.from('contact_messages').delete().eq('id', id);
   
   if (error) return Response.json({ error: 'الرسالة غير موجودة' }, { status: 404 });
   return Response.json({ success: true });

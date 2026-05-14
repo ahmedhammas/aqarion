@@ -4,8 +4,8 @@ import { generateAnalytics } from '@/lib/admin-store';
 export async function GET() {
   const analytics = generateAnalytics();
 
-  const { data: properties } = await supabase.from('properties').select('id, name, views_count, image, created_at');
-  const { data: messages } = await supabase.from('messages').select('*');
+  const { data: properties } = await supabase.from('properties').select('id, name, views_count, image:main_image, created_at');
+  const { data: messages } = await supabase.from('contact_messages').select('*');
   const { data: blogPosts } = await supabase.from('blog_posts').select('id');
 
   const safeProperties = properties || [];

@@ -13,7 +13,7 @@ export async function POST(req) {
       );
     }
 
-    const { error } = await supabase.from('messages').insert([{
+    const { error } = await supabase.from('contact_messages').insert([{
       first_name: firstName,
       last_name: lastName,
       phone,

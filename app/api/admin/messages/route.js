@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase';
 
 export async function GET() {
-  const { data, error } = await supabase.from('messages').select('*').order('created_at', { ascending: false });
+  const { data, error } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false });
   
   if (error) return Response.json({ error: error.message }, { status: 500 });
 

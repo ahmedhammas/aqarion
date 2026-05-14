@@ -2,12 +2,6 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-const statsData = [
-  { label: 'عميل سعيد', value: 1500, suffix: '+' },
-  { label: 'عقار مميز', value: 800, suffix: '+' },
-  { label: 'سنة خبرة', value: 15, suffix: '' },
-  { label: 'مدينة', value: 12, suffix: '' },
-];
 
 function Counter({ from, to, duration = 2 }: { from: number; to: number; duration?: number }) {
   const [count, setCount] = useState(from);
@@ -43,6 +37,29 @@ function Counter({ from, to, duration = 2 }: { from: number; to: number; duratio
 }
 
 export default function StatisticsSection() {
+  const [stats, setStats] = useState([
+    { label: 'عميل سعيد', value: 1500, suffix: '+' },
+    { label: 'عقار مميز', value: 800, suffix: '+' },
+    { label: 'سنة خبرة', value: 15, suffix: '' },
+    { label: 'مقالة سياحية', value: 12, suffix: '' },
+  ]);
+
+  useEffect(() => {
+    fetch('/api/admin/analytics')
+      .then(r => r.json())
+      .then(data => {
+        if (data.kpis) {
+          setStats([
+            { label: 'عميل سعيد', value: 1500, suffix: '+' }, // Mock
+            { label: 'عقار مميز', value: data.kpis.totalProperties || 0, suffix: '+' },
+            { label: 'سنة خبرة', value: 15, suffix: '' }, // Mock
+            { label: 'مقالة مفيدة', value: data.kpis.totalPosts || 0, suffix: '' },
+          ]);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <section id="stats" className="py-20 relative z-20 -mt-10 mb-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -54,7 +71,7 @@ export default function StatisticsSection() {
           <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
 
           <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4">
-            {statsData.map((stat, index) => (
+            {stats.map((stat, index) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 30 }}

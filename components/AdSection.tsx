@@ -26,16 +26,27 @@ export default function AdSection({ position }: { position: string }) {
       }
     }
 
-    fetch('/api/ads')
-      .then(r => r.json())
-      .then(d => {
-        const matchingAds = d.ads.filter((a: Ad) => a.position === position);
+    const fetchAds = async () => {
+      try {
+        const params = new URLSearchParams({ position });
+        const response = await fetch(`/api/ads?${params}`, {
+          headers: { 'Cache-Control': 'max-age=3600' },
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch ads');
+
+        const data = await response.json();
+        const matchingAds = (data.ads || []).filter((a: Ad) => a.position === position);
+
         if (matchingAds.length > 0) {
-          // Pick a random ad from matching ones
           setAd(matchingAds[Math.floor(Math.random() * matchingAds.length)]);
         }
-      })
-      .catch(err => console.error('Error fetching ads:', err));
+      } catch (err) {
+        console.warn('Error fetching ads:', err);
+      }
+    };
+
+    fetchAds();
   }, [position]);
 
   const handleClosePopup = () => {
@@ -61,15 +72,22 @@ export default function AdSection({ position }: { position: string }) {
         >
           <button 
             onClick={handleClosePopup}
-            className="absolute top-4 right-4 z-10 p-2 bg-black/40 hover:bg-black/60 text-white rounded-full transition-colors"
+            className="absolute top-4 right-4 z-10 p-2 bg-black/40 hover:bg-black/60 text-white rounded-full transition-colors backdrop-blur"
+            aria-label="إغلاق"
           >
             <X className="w-5 h-5" />
           </button>
-          <a href={ad.link} className="block group">
-            <div className="relative aspect-video">
-              <img src={ad.image_url} alt={ad.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-8">
-                <h3 className="font-cairo font-bold text-2xl text-white mb-2">{ad.title}</h3>
+          <a href={ad.link} className="block group" target="_blank" rel="noopener noreferrer">
+            <div className="relative aspect-video bg-gray-900">
+              <img 
+                src={ad.image_url} 
+                alt={ad.title} 
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                loading="lazy"
+                onError={(e: any) => e.target.style.backgroundColor = '#1a1a1a'}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-8">
+                <h3 className="font-cairo font-bold text-2xl text-white mb-2 line-clamp-2">{ad.title}</h3>
                 <div className="flex items-center gap-2 text-gold font-cairo text-sm">
                   <span>اكتشف المزيد</span>
                   <ExternalLink className="w-4 h-4" />
@@ -91,14 +109,22 @@ export default function AdSection({ position }: { position: string }) {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="block relative h-[250px] md:h-[350px] rounded-3xl overflow-hidden group border border-gold/10"
+            className="block relative h-[250px] md:h-[350px] rounded-3xl overflow-hidden group border border-gold/10 bg-gray-900"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            <img src={ad.image_url} alt={ad.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+            <img 
+              src={ad.image_url} 
+              alt={ad.title} 
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+              loading="lazy"
+              onError={(e: any) => e.target.style.backgroundColor = '#1a1a1a'}
+            />
             <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/40 to-transparent flex items-center p-8 md:p-16">
               <div className="max-w-md">
                 <span className="inline-block px-3 py-1 bg-gold/20 text-gold rounded-full font-cairo text-xs mb-4 border border-gold/20">إعلان مميز</span>
-                <h3 className="font-cairo font-bold text-3xl md:text-4xl text-white mb-6 leading-tight">{ad.title}</h3>
-                <div className="inline-flex items-center gap-3 bg-gold text-navy-dark px-6 py-3 rounded-xl font-cairo font-bold text-sm transition-all group-hover:bg-white group-hover:shadow-gold">
+                <h3 className="font-cairo font-bold text-3xl md:text-4xl text-white mb-6 leading-tight line-clamp-3">{ad.title}</h3>
+                <div className="inline-flex items-center gap-3 bg-gold text-navy-dark px-6 py-3 rounded-xl font-cairo font-bold text-sm transition-all hover:bg-gold-light shadow-lg hover:shadow-xl">
                   <span>التفاصيل الآن</span>
                   <ExternalLink className="w-4 h-4" />
                 </div>
@@ -107,6 +133,34 @@ export default function AdSection({ position }: { position: string }) {
           </motion.a>
         </div>
       </section>
+    );
+  }
+
+  if (position === 'sidebar') {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="p-4 rounded-2xl border border-gold/10 overflow-hidden bg-gradient-to-br from-gold/5 to-transparent hover:border-gold/20 transition-all"
+      >
+        <a href={ad.link} className="block group" target="_blank" rel="noopener noreferrer">
+          <div className="relative aspect-video rounded-xl overflow-hidden mb-3 bg-gray-900">
+            <img 
+              src={ad.image_url} 
+              alt={ad.title} 
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+              loading="lazy"
+              onError={(e: any) => e.target.style.backgroundColor = '#1a1a1a'}
+            />
+          </div>
+          <h4 className="font-cairo font-bold text-white text-sm mb-2 line-clamp-2 group-hover:text-gold transition-colors">{ad.title}</h4>
+          <div className="text-gold text-xs font-cairo flex items-center gap-1">
+            <span>عرض أكثر</span>
+            <ExternalLink className="w-3 h-3" />
+          </div>
+        </a>
+      </motion.div>
     );
   }
 

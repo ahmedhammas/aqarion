@@ -19,9 +19,9 @@ interface Ad {
 }
 
 const positions = [
-  { id: 'home_banner', label: 'بانر رئيسي', icon: Layout, desc: 'يظهر بين الأقسام الرئيسية' },
-  { id: 'popup', label: 'نافذة منبثقة', icon: Maximize, desc: 'يظهر عند دخول الموقع' },
-  { id: 'sidebar', label: 'شريط جانبي', icon: SidebarIcon, desc: 'يظهر في الشريط الجانبي' },
+  { id: 'home_banner', label: 'بانر رئيسي', icon: Layout, desc: 'يظهر بين الأقسام الرئيسية على الصفحة الرئيسية', color: 'from-blue-500 to-cyan-500' },
+  { id: 'popup', label: 'نافذة منبثقة', icon: Maximize, desc: 'يظهر عند دخول الموقع - إعلان بارز', color: 'from-purple-500 to-pink-500' },
+  { id: 'sidebar', label: 'شريط جانبي', icon: SidebarIcon, desc: 'إعلان صغير في الشريط الجانبي للصفحات', color: 'from-amber-500 to-orange-500' },
 ];
 
 const emptyAd = { id: 0, title: '', image_url: '', link: '', position: 'home_banner', is_active: true, created_at: '' };
@@ -33,33 +33,87 @@ export default function AdsPage() {
   const [isNew, setIsNew] = useState(false);
   const [preview, setPreview] = useState<Ad | null>(null);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState<number | null>(null);
 
-  const fetchData = () => {
-    fetch('/api/admin/ads').then(r => r.json()).then(d => { setAds(d.ads || []); setLoading(false); });
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/admin/ads');
+      if (!response.ok) throw new Error('فشل جلب الإعلانات');
+      const data = await response.json();
+      setAds(data.ads || []);
+    } catch (error) {
+      console.error('Fetch error:', error);
+      setAds([]);
+    } finally {
+      setLoading(false);
+    }
   };
-  useEffect(() => { fetchData(); }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleSave = async () => {
-    if (!editModal) return;
-    const method = isNew ? 'POST' : 'PUT';
-    await fetch('/api/admin/ads', { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(editModal) });
-    setEditModal(null);
-    setIsNew(false);
-    fetchData();
+    if (!editModal || !editModal.title || !editModal.image_url || !editModal.link) {
+      alert('الرجاء ملء جميع الحقول المطلوبة');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const method = isNew ? 'POST' : 'PUT';
+      const response = await fetch('/api/admin/ads', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editModal),
+      });
+
+      if (!response.ok) throw new Error('فشل حفظ الإعلان');
+
+      alert(isNew ? 'تم إضافة الإعلان بنجاح ✓' : 'تم تحديث الإعلان بنجاح ✓');
+      setEditModal(null);
+      setIsNew(false);
+      await fetchData();
+    } catch (error) {
+      console.error('Save error:', error);
+      alert('حدث خطأ أثناء الحفظ');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('حذف هذا الإعلان؟')) return;
-    await fetch(`/api/admin/ads?id=${id}`, { method: 'DELETE' });
-    fetchData();
+    if (!confirm('هل تريد حذف هذا الإعلان بالفعل؟')) return;
+
+    setDeleting(id);
+    try {
+      const response = await fetch(`/api/admin/ads?id=${id}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error('فشل الحذف');
+      alert('تم حذف الإعلان بنجاح ✓');
+      await fetchData();
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('فشل حذف الإعلان');
+    } finally {
+      setDeleting(null);
+    }
   };
 
   const toggleActive = async (ad: Ad) => {
-    await fetch('/api/admin/ads', {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...ad, is_active: !ad.is_active }),
-    });
-    fetchData();
+    try {
+      const response = await fetch('/api/admin/ads', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...ad, is_active: !ad.is_active }),
+      });
+      if (!response.ok) throw new Error('فشل التحديث');
+      await fetchData();
+    } catch (error) {
+      console.error('Toggle error:', error);
+      alert('فشل تحديث حالة الإعلان');
+    }
   };
 
   const filtered = activeFilter === 'all' ? ads : ads.filter(a => a.position === activeFilter);
@@ -121,10 +175,16 @@ export default function AdsPage() {
             {/* Image */}
             <div className="relative h-44 group">
               {ad.image_url ? (
-                <img src={ad.image_url} alt={ad.title} className="w-full h-full object-cover" />
+                <img 
+                  src={ad.image_url} 
+                  alt={ad.title} 
+                  className="w-full h-full object-cover" 
+                  loading="lazy"
+                  onError={(e: any) => e.target.style.backgroundColor = '#1a1a1a'}
+                />
               ) : (
-                <div className="w-full h-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.03)' }}>
-                  <Image className="w-10 h-10 text-white/10" />
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-white/5 to-white/1">
+                  <Image className="w-10 h-10 text-white/20" />
                 </div>
               )}
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
@@ -159,9 +219,11 @@ export default function AdsPage() {
                     className="p-1.5 rounded-lg text-white/30 hover:text-blue-400 hover:bg-blue-400/5 transition-colors">
                     <Edit className="w-4 h-4" />
                   </button>
-                  <button onClick={() => handleDelete(ad.id)}
-                    className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-400/5 transition-colors">
-                    <Trash2 className="w-4 h-4" />
+                  <button 
+                    onClick={() => handleDelete(ad.id)}
+                    disabled={deleting === ad.id}
+                    className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-400/5 transition-colors disabled:opacity-50">
+                    {deleting === ad.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                   </button>
                 </div>
                 <span className="font-cairo text-[10px] text-white/20">#{ad.id}</span>
@@ -195,31 +257,37 @@ export default function AdsPage() {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block font-cairo text-xs text-white/50 mb-1.5">عنوان الإعلان</label>
+                    <label className="block font-cairo text-xs text-white/50 mb-1.5">عنوان الإعلان *</label>
                     <input value={editModal.title} onChange={e => setEditModal({ ...editModal, title: e.target.value })}
                       placeholder="مثلاً: عرض الصيف - الساحل الشمالي"
                       className="w-full input-luxury rounded-xl py-2.5 px-4 font-cairo text-sm" />
                   </div>
 
                   <div>
-                    <label className="block font-cairo text-xs text-white/50 mb-1.5">رابط الصورة</label>
+                    <label className="block font-cairo text-xs text-white/50 mb-1.5">رابط الصورة *</label>
                     <input value={editModal.image_url} onChange={e => setEditModal({ ...editModal, image_url: e.target.value })}
                       placeholder="https://..." className="w-full input-luxury rounded-xl py-2.5 px-4 font-cairo text-sm text-left" dir="ltr" />
                     {editModal.image_url && (
-                      <div className="mt-2 rounded-xl overflow-hidden h-32">
-                        <img src={editModal.image_url} alt="preview" className="w-full h-full object-cover" onError={(e: any) => e.target.style.display = 'none'} />
+                      <div className="mt-2 rounded-xl overflow-hidden h-32 bg-gray-900">
+                        <img 
+                          src={editModal.image_url} 
+                          alt="preview" 
+                          className="w-full h-full object-cover" 
+                          loading="lazy"
+                          onError={(e: any) => e.target.style.display = 'none'} 
+                        />
                       </div>
                     )}
                   </div>
 
                   <div>
-                    <label className="block font-cairo text-xs text-white/50 mb-1.5">رابط الوجهة</label>
+                    <label className="block font-cairo text-xs text-white/50 mb-1.5">رابط الوجهة *</label>
                     <input value={editModal.link} onChange={e => setEditModal({ ...editModal, link: e.target.value })}
                       placeholder="/properties/..." className="w-full input-luxury rounded-xl py-2.5 px-4 font-cairo text-sm text-left" dir="ltr" />
                   </div>
 
                   <div>
-                    <label className="block font-cairo text-xs text-white/50 mb-2">مكان الظهور</label>
+                    <label className="block font-cairo text-xs text-white/50 mb-2">مكان الظهور *</label>
                     <div className="grid grid-cols-3 gap-2">
                       {positions.map(p => (
                         <button key={p.id} onClick={() => setEditModal({ ...editModal, position: p.id })}
@@ -233,7 +301,7 @@ export default function AdsPage() {
                       ))}
                     </div>
                     <p className="font-cairo text-white/30 text-xs mt-2">
-                      {positions.find(p => p.id === editModal.position)?.desc}
+                      📍 {positions.find(p => p.id === editModal.position)?.desc}
                     </p>
                   </div>
 
@@ -247,8 +315,12 @@ export default function AdsPage() {
                   </div>
                 </div>
 
-                <button onClick={handleSave} className="btn-gold w-full py-3 rounded-xl font-cairo text-sm font-bold flex items-center justify-center gap-2">
-                  <Save className="w-4 h-4" /> حفظ الإعلان
+                <button 
+                  onClick={handleSave} 
+                  disabled={saving}
+                  className="btn-gold w-full py-3 rounded-xl font-cairo text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  {saving ? 'جاري الحفظ...' : 'حفظ الإعلان'}
                 </button>
               </div>
             </motion.div>
@@ -264,14 +336,33 @@ export default function AdsPage() {
             onClick={() => setPreview(null)}>
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
               className="relative max-w-2xl w-full" onClick={e => e.stopPropagation()}>
-              <button onClick={() => setPreview(null)} className="absolute -top-4 -right-4 z-10 w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white">
+              <button 
+                onClick={() => setPreview(null)} 
+                className="absolute -top-4 -right-4 z-10 w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-all"
+                aria-label="إغلاق"
+              >
                 <X className="w-4 h-4" />
               </button>
-              <div className="rounded-2xl overflow-hidden border" style={{ borderColor: 'rgba(197,139,91,0.2)' }}>
-                <img src={preview.image_url} alt={preview.title} className="w-full object-cover" />
+              <div className="rounded-2xl overflow-hidden border bg-gray-900" style={{ borderColor: 'rgba(197,139,91,0.2)' }}>
+                <img 
+                  src={preview.image_url} 
+                  alt={preview.title} 
+                  className="w-full object-cover max-h-96" 
+                  loading="lazy"
+                  onError={(e: any) => e.target.style.backgroundColor = '#1a1a1a'}
+                />
                 <div className="p-4" style={{ background: '#020a18' }}>
-                  <p className="font-cairo text-white font-bold">{preview.title}</p>
-                  <p className="font-cairo text-white/40 text-sm mt-1">{positions.find(p => p.id === preview.position)?.label}</p>
+                  <p className="font-cairo text-white font-bold mb-1">{preview.title}</p>
+                  <p className="font-cairo text-white/50 text-xs mb-3">📍 {positions.find(p => p.id === preview.position)?.label}</p>
+                  <a 
+                    href={preview.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-gold/10 text-gold rounded-lg hover:bg-gold/20 transition-all text-xs font-cairo font-bold"
+                  >
+                    زيارة الرابط
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
                 </div>
               </div>
             </motion.div>

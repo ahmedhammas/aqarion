@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -41,7 +41,7 @@ export default function PropertiesAdminPage() {
   const [deleteModal, setDeleteModal] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  const fetchProperties = async () => {
+  const fetchProperties = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({ page: page.toString(), perPage: '8' });
     if (search) params.set('search', search);
@@ -49,15 +49,23 @@ export default function PropertiesAdminPage() {
     if (typeFilter) params.set('type', typeFilter);
     if (statusFilter) params.set('status', statusFilter);
 
-    const res = await fetch(`/api/admin/properties?${params}`);
-    const data = await res.json();
-    setProperties(data.properties || []);
-    setTotalPages(data.totalPages || 1);
-    setTotal(data.total || 0);
-    setLoading(false);
-  };
+    try {
+      const res = await fetch(`/api/admin/properties?${params}`);
+      const data = await res.json();
+      setProperties(data.properties || []);
+      setTotalPages(data.totalPages || 1);
+      setTotal(data.total || 0);
+    } catch (error) {
+      console.error('Failed to fetch properties:', error);
+      setProperties([]);
+      setTotalPages(1);
+      setTotal(0);
+    } finally {
+      setLoading(false);
+    }
+  }, [page, search, cityFilter, typeFilter, statusFilter]);
 
-  useEffect(() => { fetchProperties(); }, [page, cityFilter, typeFilter, statusFilter]);
+  useEffect(() => { fetchProperties(); }, [fetchProperties]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
