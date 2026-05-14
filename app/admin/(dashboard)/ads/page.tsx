@@ -5,8 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, Edit, Trash2, Eye, EyeOff, Loader2, X, Save,
   ExternalLink, Layout, Maximize, Sidebar as SidebarIcon,
-  Monitor, Image, Link as LinkIcon, ToggleLeft, ToggleRight
+  Monitor, Image, Link as LinkIcon, ToggleLeft, ToggleRight, Upload
 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 interface Ad {
   id: number;
@@ -34,6 +35,7 @@ export default function AdsPage() {
   const [preview, setPreview] = useState<Ad | null>(null);
   const [activeFilter, setActiveFilter] = useState('all');
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState<number | null>(null);
 
   const fetchData = async () => {
@@ -113,6 +115,35 @@ export default function AdsPage() {
     } catch (error) {
       console.error('Toggle error:', error);
       alert('فشل تحديث حالة الإعلان');
+    }
+  };
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editModal) return;
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `ads/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('ads')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('ads')
+        .getPublicUrl(filePath);
+
+      setEditModal({ ...editModal, image_url: publicUrl });
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      alert('فشل رفع الصورة: تأكد من وجود Bucket باسم ads في Supabase وجعله Public');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -264,11 +295,19 @@ export default function AdsPage() {
                   </div>
 
                   <div>
-                    <label className="block font-cairo text-xs text-white/50 mb-1.5">رابط الصورة *</label>
-                    <input value={editModal.image_url} onChange={e => setEditModal({ ...editModal, image_url: e.target.value })}
-                      placeholder="https://..." className="w-full input-luxury rounded-xl py-2.5 px-4 font-cairo text-sm text-left" dir="ltr" />
+                    <label className="block font-cairo text-xs text-white/50 mb-1.5">الصورة الإعلانية *</label>
+                    <div className="flex gap-2 mb-3">
+                      <div className="relative flex-1">
+                        <input value={editModal.image_url} onChange={e => setEditModal({ ...editModal, image_url: e.target.value })}
+                          placeholder="رابط الصورة أو ارفع واحدة..." className="w-full input-luxury rounded-xl py-2.5 px-4 font-cairo text-sm text-left" dir="ltr" />
+                      </div>
+                      <label className="cursor-pointer bg-gold/10 hover:bg-gold/20 text-gold p-2.5 rounded-xl border border-gold/20 transition-all flex items-center justify-center min-w-[45px]">
+                        {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5" />}
+                        <input type="file" className="hidden" accept="image/*" onChange={handleUpload} disabled={uploading} />
+                      </label>
+                    </div>
                     {editModal.image_url && (
-                      <div className="mt-2 rounded-xl overflow-hidden h-32 bg-gray-900">
+                      <div className="mt-2 rounded-xl overflow-hidden h-32 bg-gray-900 border border-white/5">
                         <img 
                           src={editModal.image_url} 
                           alt="preview" 
