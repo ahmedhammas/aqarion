@@ -105,7 +105,7 @@ export default function RegisterPage() {
 
         <div className="glass-card-dark rounded-3xl p-8 border border-gold/20 shadow-2xl">
           <div className="text-center mb-8">
-            <h1 className="font-cairo font-bold text-3xl text-white mb-2">إنشاء حساب جديد (مُحدث)</h1>
+            <h1 className="font-cairo font-bold text-3xl text-white mb-2">إنشاء حساب جديد</h1>
             <p className="font-cairo text-white/50 text-sm">انضم إلينا واستمتع بمميزات حصرية</p>
           </div>
 
@@ -141,6 +141,22 @@ export default function RegisterPage() {
               </div>
 
               <div className="space-y-2">
+                <label className="block font-cairo text-sm text-white/70">رقم الهاتف</label>
+                <div className="relative">
+                  <Phone className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
+                  <input
+                    type="tel"
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full input-luxury rounded-xl py-3 pr-12 pl-4 font-cairo text-sm"
+                    placeholder="01xxxxxxxxx"
+                    dir="ltr"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
                 <label className="block font-cairo text-sm text-white/70">البريد الإلكتروني</label>
                 <div className="relative">
                   <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
@@ -156,21 +172,6 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="block font-cairo text-sm text-white/70">رقم الهاتف</label>
-                <div className="relative">
-                  <Phone className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
-                  <input
-                    type="tel"
-                    required
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full input-luxury rounded-xl py-3 pr-12 pl-4 font-cairo text-sm"
-                    placeholder="01xxxxxxxxx"
-                    dir="ltr"
-                  />
-                </div>
-              </div>
 
               <div className="space-y-2">
                 <label className="block font-cairo text-sm text-white/70">كلمة المرور</label>
