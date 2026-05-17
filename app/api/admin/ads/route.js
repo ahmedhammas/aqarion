@@ -12,6 +12,7 @@ export async function POST(req) {
     // Remove id and created_at if present to let Supabase handle them
     const { id, created_at, ...insertData } = body;
     
+
     const { data, error } = await supabase.from('ads').insert([{
       ...insertData,
       is_active: true,
