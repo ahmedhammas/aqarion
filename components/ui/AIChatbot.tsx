@@ -2,18 +2,23 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, X, Send, Bot, User } from 'lucide-react';
+import { 
+  X, Send, Bot, User, Cpu, Hammer, 
+  ExternalLink, BookOpen, ShoppingBag, CheckCircle, AlertTriangle 
+} from 'lucide-react';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  matchedProperties?: any[];
+  matchedBlogs?: any[];
 }
 
 const SUGGESTIONS = [
-  'ما أفضل عقار بميزانية 3 مليون؟',
-  'ما الفرق بين الشيخ زايد والتجمع؟',
-  'كيف أبدأ في الاستثمار العقاري؟',
-  'ما أسعار الفلل في الساحل الشمالي؟',
+  'هل لديكم قطع غيار شاشات أو بطاريات؟',
+  'عندي مشكلة في بطارية الهاتف تفرغ بسرعة، ما الحل؟',
+  'ما هي الأجهزة المتوفرة لديكم حالياً وأسعارها؟',
+  'أريد شراء كرت شاشة أو قطع هاردوير للكمبيوتر',
 ];
 
 export default function AIChatbot() {
@@ -92,7 +97,12 @@ export default function AIChatbot() {
       } else {
         setMessages((prev) => [
           ...prev,
-          { role: 'assistant', content: data.reply },
+          { 
+            role: 'assistant', 
+            content: data.reply,
+            matchedProperties: data.matchedProperties,
+            matchedBlogs: data.matchedBlogs
+          },
         ]);
       }
     } catch {
@@ -112,6 +122,17 @@ export default function AIChatbot() {
     }
   };
 
+  // Clean raw tags from assistant content
+  const cleanContent = (text: string) => {
+    return text.replace(/\[property:\d+\]/g, '').replace(/\[blog:\d+\]/g, '').trim();
+  };
+
+  // Handle redirecting and closing chatbot
+  const handleRedirect = (url: string) => {
+    setIsOpen(false);
+    window.location.href = url;
+  };
+
   return (
     <>
       {/* Chat Button */}
@@ -125,7 +146,7 @@ export default function AIChatbot() {
             className="fixed bottom-6 left-6 z-50 w-14 h-14 rounded-full bg-gold-gradient flex items-center justify-center shadow-gold-lg hover:scale-110 transition-transform group"
             aria-label="فتح المساعد الذكي"
           >
-            <Bot className="w-7 h-7 text-white" />
+            <Bot className="w-7 h-7 text-white animate-pulse" />
             <motion.div
               animate={{ scale: [1, 1.4, 1], opacity: [0.5, 0, 0.5] }}
               transition={{ duration: 2, repeat: Infinity }}
@@ -143,7 +164,7 @@ export default function AIChatbot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.3 }}
-            className="fixed bottom-6 left-6 z-50 w-[380px] max-w-[calc(100vw-3rem)] h-[550px] max-h-[calc(100vh-6rem)] glass-card-dark rounded-3xl border border-gold/30 flex flex-col overflow-hidden shadow-2xl"
+            className="fixed bottom-6 left-6 z-50 w-[420px] max-w-[calc(100vw-3rem)] h-[600px] max-h-[calc(100vh-6rem)] glass-card-dark rounded-3xl border border-gold/30 flex flex-col overflow-hidden shadow-2xl"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-gold/20 bg-gradient-to-l from-gold/5 to-transparent">
@@ -152,10 +173,10 @@ export default function AIChatbot() {
                   <Bot className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-cairo font-bold text-white text-sm">مساعدك العقاري</h3>
+                  <h3 className="font-cairo font-bold text-white text-sm">مساعدك الذكي للدعم والمنتجات</h3>
                   <div className="flex items-center gap-1.5">
                     <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                    <span className="font-cairo text-white/50 text-xs">متصل الآن</span>
+                    <span className="font-cairo text-white/50 text-xs">متصل الآن لمساعدتك</span>
                   </div>
                 </div>
               </div>
@@ -174,15 +195,18 @@ export default function AIChatbot() {
                   <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/10 border border-gold/20 flex items-center justify-center">
                     <Bot className="w-8 h-8 text-gold/60" />
                   </div>
-                  <p className="font-cairo text-white/70 text-sm mb-6">
-                    مرحباً! أنا مساعدك العقاري الذكي. كيف يمكنني مساعدتك اليوم؟
+                  <p className="font-cairo text-white/90 text-sm font-semibold mb-2">
+                    مرحباً بك في المساعد الذكي!
+                  </p>
+                  <p className="font-cairo text-white/60 text-xs mb-6 max-w-[280px] mx-auto leading-relaxed">
+                    أنا هنا لمساعدتك في الاستفسار عن الأجهزة، وقطع الغيار، والملحقات المتوفرة بالموقع، وحل مشكلات الصيانة أو السوفت وير والهارد وير.
                   </p>
                   <div className="space-y-2">
                     {SUGGESTIONS.map((suggestion) => (
                       <button
                         key={suggestion}
                         onClick={() => sendMessage(suggestion)}
-                        className="block w-full text-right px-4 py-2.5 rounded-xl border border-gold/15 text-white/60 hover:border-gold/40 hover:text-gold hover:bg-gold/5 transition-all font-cairo text-xs"
+                        className="block w-full text-right px-4 py-2.5 rounded-xl border border-gold/15 text-white/60 hover:border-gold/40 hover:text-gold hover:bg-gold/5 transition-all font-cairo text-xs leading-relaxed"
                       >
                         {suggestion}
                       </button>
@@ -191,35 +215,154 @@ export default function AIChatbot() {
                 </div>
               )}
 
-              {messages.map((msg, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`flex gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
-                >
-                  <div
-                    className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center ${msg.role === 'user'
-                      ? 'bg-gold/20 border border-gold/30'
-                      : 'bg-navy-light/50 border border-white/10'
-                      }`}
+              {messages.map((msg, index) => {
+                const isAssistant = msg.role === 'assistant';
+                const hasEntities = isAssistant && ((msg.matchedProperties && msg.matchedProperties.length > 0) || (msg.matchedBlogs && msg.matchedBlogs.length > 0));
+                const cleanedContent = isAssistant ? cleanContent(msg.content) : msg.content;
+
+                return (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`flex flex-col gap-2 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
                   >
-                    {msg.role === 'user' ? (
-                      <User className="w-3.5 h-3.5 text-gold" />
-                    ) : (
-                      <Bot className="w-3.5 h-3.5 text-white/70" />
+                    <div className={`flex gap-2 max-w-[85%] ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                      {/* Avatar */}
+                      <div
+                        className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center ${msg.role === 'user'
+                          ? 'bg-gold/20 border border-gold/30'
+                          : 'bg-navy-light/50 border border-white/10'
+                          }`}
+                      >
+                        {msg.role === 'user' ? (
+                          <User className="w-3.5 h-3.5 text-gold" />
+                        ) : (
+                          <Bot className="w-3.5 h-3.5 text-white/70" />
+                        )}
+                      </div>
+
+                      {/* Text Bubble */}
+                      <div
+                        className={`px-4 py-3 rounded-2xl font-cairo text-sm leading-relaxed whitespace-pre-wrap ${msg.role === 'user'
+                          ? 'bg-gold/20 border border-gold/30 text-white rounded-tr-sm'
+                          : 'bg-white/5 border border-white/10 text-white/80 rounded-tl-sm'
+                          }`}
+                      >
+                        {cleanedContent}
+                      </div>
+                    </div>
+
+                    {/* Interactive Product & Article Cards */}
+                    {hasEntities && (
+                      <div className="w-[85%] mr-9 ml-9 space-y-3 mt-1">
+                        {/* Properties / Products rendering */}
+                        {msg.matchedProperties?.map((prop: any) => (
+                          <motion.div
+                            key={prop.id}
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            whileHover={{ y: -2 }}
+                            className="glass-card rounded-2xl p-3 flex gap-3 border border-gold/20 hover:border-gold/50 transition-all shadow-md group relative overflow-hidden"
+                          >
+                            {/* Product Thumbnail */}
+                            <div className="w-20 h-20 rounded-xl bg-navy-dark border border-white/10 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                              {prop.main_image ? (
+                                <img
+                                  src={prop.main_image}
+                                  alt={prop.name}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                />
+                              ) : (
+                                <ShoppingBag className="w-8 h-8 text-gold/60" />
+                              )}
+                            </div>
+
+                            {/* Product Details */}
+                            <div className="flex-1 flex flex-col justify-between min-w-0">
+                              <div>
+                                <div className="flex items-center justify-between gap-2 mb-1">
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-gold/10 text-gold border border-gold/20">
+                                    {prop.type_label || prop.type}
+                                  </span>
+                                  {prop.status === 'available' ? (
+                                    <span className="flex items-center gap-1 text-[10px] text-green-400 font-semibold">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                                      متوفر الآن
+                                    </span>
+                                  ) : (
+                                    <span className="flex items-center gap-1 text-[10px] text-red-400 font-semibold">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                                      غير متوفر
+                                    </span>
+                                  )}
+                                </div>
+                                <h4 className="font-cairo font-bold text-white text-xs truncate mb-1">
+                                  {prop.name}
+                                </h4>
+                                <p className="font-cairo text-white/50 text-[10px] line-clamp-1">
+                                  {prop.description || 'لا يوجد وصف للمنتج.'}
+                                </p>
+                              </div>
+
+                              <div className="flex items-center justify-between gap-2 mt-2">
+                                <span className="font-cairo font-black text-xs text-gold-light">
+                                  {prop.price_display || `${prop.price_num} ج.م`}
+                                </span>
+                                <button
+                                  onClick={() => handleRedirect(`/property/${prop.id}`)}
+                                  className="btn-gold flex items-center gap-1 px-3 py-1 rounded-lg font-cairo text-[11px] font-semibold"
+                                >
+                                  <span>عرض المنتج</span>
+                                  <ExternalLink className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+
+                        {/* Blog posts rendering */}
+                        {msg.matchedBlogs?.map((blog: any) => (
+                          <motion.div
+                            key={blog.id}
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            whileHover={{ y: -2 }}
+                            className="glass-card rounded-2xl p-3 flex gap-3 border border-white/10 hover:border-gold/30 transition-all shadow-md group relative overflow-hidden"
+                          >
+                            <div className="w-10 h-10 rounded-xl bg-navy-light/40 border border-white/5 flex-shrink-0 flex items-center justify-center">
+                              <BookOpen className="w-5 h-5 text-white/60 group-hover:text-gold transition-colors" />
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-[9px] px-2 py-0.5 rounded-full bg-white/5 text-white/60 border border-white/10">
+                                  {blog.category || 'صيانة ودعم'}
+                                </span>
+                              </div>
+                              <h4 className="font-cairo font-bold text-white text-xs truncate">
+                                {blog.title}
+                              </h4>
+                              <p className="font-cairo text-white/50 text-[10px] line-clamp-1 mt-0.5">
+                                {blog.excerpt}
+                              </p>
+                              <div className="flex justify-end mt-1">
+                                <button
+                                  onClick={() => handleRedirect(`/blog/${blog.slug}`)}
+                                  className="text-[11px] text-gold-light hover:text-gold flex items-center gap-1 font-semibold transition-colors"
+                                >
+                                  <span>اقرأ المقال الكامل</span>
+                                  <ExternalLink className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
                     )}
-                  </div>
-                  <div
-                    className={`max-w-[80%] px-4 py-3 rounded-2xl font-cairo text-sm leading-relaxed ${msg.role === 'user'
-                      ? 'bg-gold/20 border border-gold/30 text-white rounded-tr-sm'
-                      : 'bg-white/5 border border-white/10 text-white/80 rounded-tl-sm'
-                      }`}
-                  >
-                    {msg.content}
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
 
               {/* Typing Indicator */}
               {isTyping && (
@@ -255,7 +398,7 @@ export default function AIChatbot() {
             </div>
 
             {/* Input Area */}
-            <div className="p-3 border-t border-gold/15">
+            <div className="p-3 border-t border-gold/15 bg-[#030d1c]">
               <div className="flex gap-2">
                 <input
                   ref={inputRef}
@@ -263,8 +406,8 @@ export default function AIChatbot() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="اكتب سؤالك هنا..."
-                  className="flex-1 input-luxury rounded-xl py-2.5 px-4 font-cairo text-sm"
+                  placeholder="اسألني عن الأجهزة، قطع الغيار، أو مشاكل الصيانة..."
+                  className="flex-1 input-luxury rounded-xl py-2.5 px-4 font-cairo text-xs"
                   disabled={isTyping}
                 />
                 <button
