@@ -54,7 +54,7 @@ export async function DELETE(req) {
     
     if (error) throw error;
     return Response.json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Ads DELETE Error:', error);
     return Response.json({ error: error.message || 'فشل حذف الإعلان' }, { status: 500 });
   }
