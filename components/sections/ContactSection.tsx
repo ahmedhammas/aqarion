@@ -189,7 +189,7 @@ export default function ContactSection() {
             <div className="space-y-6">
               {[
                 { icon: MapPin, title: 'العنوان', text: 'القاهرة، التجمع الخامس، شارع التسعين' },
-                { icon: Phone, title: 'الهاتف', text: '+20 123 456 7890', ltr: true },
+                { icon: Phone, title: 'الهاتف', text: '01152277706', ltr: true },
                 { icon: Mail, title: 'البريد الإلكتروني', text: 'info@aqarion.com', ltr: true },
               ].map((item, idx) => (
                 <div key={idx} className="flex gap-4 items-center">
