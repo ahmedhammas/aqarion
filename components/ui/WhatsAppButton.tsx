@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { MessageCircle } from 'lucide-react';
 
 export default function WhatsAppButton() {
-  const phoneNumber = '201152277706';
+  const phoneNumber = '201147007061';
   const defaultMessage = 'مرحباً، أريد الاستفسار عن عقار من موقع عقاريون المتحدة';
   const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(defaultMessage)}`;
 

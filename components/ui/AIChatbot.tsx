@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  X, Send, Bot, User, Cpu, Hammer, 
-  ExternalLink, BookOpen, ShoppingBag, CheckCircle, AlertTriangle 
+  X, Send, Bot, User, Home, Building2, 
+  ExternalLink, BookOpen, MapPin, CheckCircle, AlertTriangle 
 } from 'lucide-react';
 
 interface Message {
@@ -15,10 +15,10 @@ interface Message {
 }
 
 const SUGGESTIONS = [
-  'هل لديكم قطع غيار شاشات أو بطاريات؟',
-  'عندي مشكلة في بطارية الهاتف تفرغ بسرعة، ما الحل؟',
-  'ما هي الأجهزة المتوفرة لديكم حالياً وأسعارها؟',
-  'أريد شراء كرت شاشة أو قطع هاردوير للكمبيوتر',
+  'ما أفضل عقار بميزانية 3 مليون؟',
+  'ما الفرق بين الشيخ زايد والتجمع؟',
+  'كيف أبدأ في الاستثمار العقاري؟',
+  'ما أسعار الفلل في الساحل الشمالي؟',
 ];
 
 export default function AIChatbot() {
@@ -173,7 +173,7 @@ export default function AIChatbot() {
                   <Bot className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-cairo font-bold text-white text-sm">مساعدك الذكي للدعم والمنتجات</h3>
+                  <h3 className="font-cairo font-bold text-white text-sm">مساعدك العقاري الذكي</h3>
                   <div className="flex items-center gap-1.5">
                     <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                     <span className="font-cairo text-white/50 text-xs">متصل الآن لمساعدتك</span>
@@ -199,7 +199,7 @@ export default function AIChatbot() {
                     مرحباً بك في المساعد الذكي!
                   </p>
                   <p className="font-cairo text-white/60 text-xs mb-6 max-w-[280px] mx-auto leading-relaxed">
-                    أنا هنا لمساعدتك في الاستفسار عن الأجهزة، وقطع الغيار، والملحقات المتوفرة بالموقع، وحل مشكلات الصيانة أو السوفت وير والهارد وير.
+                    أنا هنا لمساعدتك في البحث عن العقارات، معرفة الأسعار، وتقديم نصائح استثمارية.
                   </p>
                   <div className="space-y-2">
                     {SUGGESTIONS.map((suggestion) => (
@@ -274,7 +274,7 @@ export default function AIChatbot() {
                                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                 />
                               ) : (
-                                <ShoppingBag className="w-8 h-8 text-gold/60" />
+                                <Building2 className="w-8 h-8 text-gold/60" />
                               )}
                             </div>
 
@@ -288,12 +288,12 @@ export default function AIChatbot() {
                                   {prop.status === 'available' ? (
                                     <span className="flex items-center gap-1 text-[10px] text-green-400 font-semibold">
                                       <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                                      متوفر الآن
+                                      متاح
                                     </span>
                                   ) : (
                                     <span className="flex items-center gap-1 text-[10px] text-red-400 font-semibold">
                                       <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
-                                      غير متوفر
+                                      مباع
                                     </span>
                                   )}
                                 </div>
@@ -301,7 +301,7 @@ export default function AIChatbot() {
                                   {prop.name}
                                 </h4>
                                 <p className="font-cairo text-white/50 text-[10px] line-clamp-1">
-                                  {prop.description || 'لا يوجد وصف للمنتج.'}
+                                  {prop.location}, {prop.city}
                                 </p>
                               </div>
 
@@ -313,7 +313,7 @@ export default function AIChatbot() {
                                   onClick={() => handleRedirect(`/property/${prop.id}`)}
                                   className="btn-gold flex items-center gap-1 px-3 py-1 rounded-lg font-cairo text-[11px] font-semibold"
                                 >
-                                  <span>عرض المنتج</span>
+                                  <span>التفاصيل</span>
                                   <ExternalLink className="w-3 h-3" />
                                 </button>
                               </div>
@@ -337,7 +337,7 @@ export default function AIChatbot() {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between mb-1">
                                 <span className="text-[9px] px-2 py-0.5 rounded-full bg-white/5 text-white/60 border border-white/10">
-                                  {blog.category || 'صيانة ودعم'}
+                                  {blog.category || 'مقال عقاري'}
                                 </span>
                               </div>
                               <h4 className="font-cairo font-bold text-white text-xs truncate">
@@ -406,7 +406,7 @@ export default function AIChatbot() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="اسألني عن الأجهزة، قطع الغيار، أو مشاكل الصيانة..."
+                  placeholder="اسألني عن العقارات، الأسعار، أو الاستثمار..."
                   className="flex-1 input-luxury rounded-xl py-2.5 px-4 font-cairo text-xs"
                   disabled={isTyping}
                 />

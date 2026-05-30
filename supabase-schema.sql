@@ -183,7 +183,7 @@ CREATE INDEX IF NOT EXISTS idx_analytics_events_created ON analytics_events(crea
 -- INITIAL DATA & RLS
 -- ======================================================
 INSERT INTO site_settings (id, site_name, site_tagline, whatsapp_number, phone_number, email, address, announcement_text)
-VALUES (1, 'عقاريون المتحدة', 'منصة العقارات الفاخرة في مصر', '201152277706', '01152277706', 'info@aqarion.com', 'القاهرة، التجمع الخامس، شارع التسعين', 'عروض حصرية على فيلل الساحل الشمالي | تواصل الآن')
+VALUES (1, 'عقاريون المتحدة', 'منصة العقارات الفاخرة في مصر', '201147007061', '01147007061', 'info@aqarion.com', 'القاهرة، التجمع الخامس، شارع التسعين', 'عروض حصرية على فيلل الساحل الشمالي | تواصل الآن')
 ON CONFLICT (id) DO NOTHING;
 
 -- تعطيل الحماية للجداول لتسهيل التطوير (Disable RLS)

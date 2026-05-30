@@ -312,7 +312,7 @@ export default function PropertyDetailPage() {
               </div>
 
               <a
-                href={`https://wa.me/201152277706?text=${encodeURIComponent(`مرحباً، أريد الاستفسار عن: ${property.name} - ${property.price} ج.م`)}`}
+                href={`https://wa.me/201147007061?text=${encodeURIComponent(`مرحباً، أريد الاستفسار عن: ${property.name} - ${property.price} ج.م`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-gold w-full flex items-center justify-center gap-2 py-4 rounded-2xl font-cairo font-bold text-lg mb-3"
